@@ -1,63 +1,79 @@
-var firstName = ""
-var lastName = ""
-var userName = ""
-var email = ""
-var password = ""
-var password2 = ""
+var listofInputs = {firstName:"", lastName:"", userName:"", email:"", password:"", password2:""}
 var mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
 function validateEmail()
 {
-        console.log("focus out")
-        email = document.getElementById("inputEmail").value
-        if(email.match(mailformat))
+        
+        listofInputs[3] = document.getElementById("input3").value
+        if(listofInputs[3].match(mailformat))
         {
-            console.log("valid")
-            document.getElementById("inputEmail").classList.remove("is-invalid");
-            document.getElementById("inputEmail").classList.add("is-valid");
+            document.getElementById("input3").classList.remove("is-invalid");
+            document.getElementById("input3").classList.add("is-valid");
         }
         else
         {
-            console.log("invalid")
-            document.getElementById("inputEmail").classList.remove("is-valid");
-            document.getElementById("inputEmail").classList.add("is-invalid");
-            document.getElementById("invalidMail").innerHTML = "Please provide a valid email"
+            document.getElementById("input3").classList.remove("is-valid");
+            document.getElementById("input3").classList.add("is-invalid");
+            document.getElementById("invalid3").innerHTML = "Please provide a valid email"
         }
 }
 
 function validatePassword()
 {
-    password = document.getElementById("inputPassword").value
-    password2 = document.getElementById("inputPassword2").value
-    if(password !== password2)
+    listofInputs[4] = document.getElementById("input4").value
+    listofInputs[5] = document.getElementById("input5").value
+    if(listofInputs[4] !== listofInputs[5])
     {
-        document.getElementById("inputPassword").classList.remove("is-valid");
-        document.getElementById("inputPassword").classList.add("is-invalid");
-        document.getElementById("inputPassword2").classList.remove("is-valid");
-        document.getElementById("inputPassword2").classList.add("is-invalid");
-        document.getElementById("invalidpass2").innerHTML = "passwords do not match"
+        document.getElementById("input4").classList.remove("is-valid");
+        document.getElementById("input4").classList.add("is-invalid");
+        document.getElementById("input5").classList.remove("is-valid");
+        document.getElementById("input5").classList.add("is-invalid");
+        document.getElementById("invalid5").innerHTML = "passwords do not match"
     }
-    else
+    else if(listofInputs[4] != "")
     {
-        document.getElementById("inputPassword").classList.remove("is-invalid");
-        document.getElementById("inputPassword").classList.add("is-valid");
-        document.getElementById("inputPassword2").classList.remove("is-invalid");
-        document.getElementById("inputPassword2").classList.add("is-valid");
+        document.getElementById("input4").classList.remove("is-invalid");
+        document.getElementById("input4").classList.add("is-valid");
+        document.getElementById("input5").classList.remove("is-invalid");
+        document.getElementById("input5").classList.add("is-valid");
     }
 }
 
 function validateAll()
 {
-    firstName = document.getElementById("inputname").value
-    lastName = document.getElementById("inputname2").value
-    userName = document.getElementById("inputusername").value
-    email = document.getElementById("inputEmail").value
-    password = document.getElementById("inputPassword").value
-    password2 = document.getElementById("inputPassword2").value
-    var listofInputs = {f:firstName, l:lastName, u:userName, e:email, p:password, p2:password2}
-    
+    let j = 0;
+    let allGood = false;
     for(var i in listofInputs)
     {
-        console.log(i + " " + listofInputs[i])
+        listofInputs[i] = document.getElementById("input"+j).value
+        if(listofInputs[i] == "")
+        {
+            document.getElementById("input"+j).classList.remove("is-valid")
+            document.getElementById("input"+j).classList.add("is-invalid")
+            document.getElementById("invalid"+j).innerHTML = "required"
+            allGood = false
+        }
+        else
+        {
+            document.getElementById("input"+j).classList.remove("is-invalid")
+            document.getElementById("input"+j).classList.add("is-valid")
+            document.getElementById("invalid"+j).innerHTML = ""
+            allGood = true
+        }
+        if(j == 3)
+        {
+            validateEmail();
+        }
+        if(j == 4 || j == 5)
+        {
+            validatePassword();
+        }
+        j++
+        if(j == 6)
+            j = 0
+        if(allGood) 
+        {
+            //do stuff in db
+        }
     }
 }

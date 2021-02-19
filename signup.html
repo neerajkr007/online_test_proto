@@ -9,9 +9,8 @@
 	
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
     <script src="https://kit.fontawesome.com/5c50a4aeb8.js" crossorigin="anonymous"></script>
-    <!--<link rel="stylesheet" type="text/css" href="/css/style.css">-->
-    <link rel="stylesheet" type="text/css" href="./public/css/style.css">
-    <script src="./public/scripts/signup.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <script src="/scripts/signup.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
 
@@ -56,43 +55,49 @@
                     <div class="form-group row pl-2">
                         <label for="inputname" class="col-sm-3 col-form-label">First name</label>
                         <div class="col-sm-5">
-                          <input type="text" class="form-control" id="inputname" placeholder="first name" required>
+                          <input type="text" class="form-control" id="input0" placeholder="first name" required>
+                          <div id="valid0" class="valid-feedback"></div>
+                        <div id="invalid0" class="invalid-feedback"></div>
                         </div>
                     </div>
                     <div class="form-group row pl-2">
                         <label for="inputname2" class="col-sm-3 col-form-label">Last name</label>
                         <div class="col-sm-5">
-                          <input type="text" class="form-control" id="inputname2" placeholder="last name" required>
+                          <input type="text" class="form-control" id="input1" placeholder="last name" required>
+                          <div id="valid1" class="valid-feedback"></div>
+                        <div id="invalid1" class="invalid-feedback"></div>
                         </div>
                     </div>
                     <div class="form-group row pl-2">
                         <label for="inputusername" class="col-sm-3 col-form-label">Username</label>
                         <div class="col-sm-5" id="user-name">
-                          <input type="text" class="form-control" id="inputusername" placeholder="username" required>
+                          <input type="text" class="form-control" id="input2" placeholder="username" required>
+                          <div id="valid2" class="valid-feedback"></div>
+                        <div id="invalid2" class="invalid-feedback"></div>
                         </div>
                     </div>
                     <div class="form-group row pl-2">
                       <label for="inputEmail" class="col-sm-3 col-form-label">Email</label>
                       <div class="col-sm-8" id="mail">
-                        <input type="email" class="form-control" id="inputEmail" onfocusout="validateEmail();" required>
-                        <div id="validMail" class="valid-feedback"></div>
-                        <div id="invalidMail" class="invalid-feedback"></div>
+                        <input type="email" class="form-control" id="input3" onfocusout="validateEmail();" required>
+                        <div id="valid3" class="valid-feedback"></div>
+                        <div id="invalid3" class="invalid-feedback"></div>
                       </div>
                     </div>
                     <div class="form-group row pl-2">
                       <label for="inputPassword" class="col-sm-3 col-form-label">Password</label>
                       <div class="col-sm-6" id="pass">
-                        <input type="password" class="form-control" id="inputPassword" onfocusout="validatePassword();" required>
-                        <div id="validpass" class="valid-feedback"></div>
-                        <div id="invalidpass" class="invalid-feedback"></div>
+                        <input type="password" class="form-control" id="input4" onfocusout="validatePassword();" required>
+                        <div id="valid4" class="valid-feedback"></div>
+                        <div id="invalid4" class="invalid-feedback"></div>
                       </div>
                     </div>
                     <div class="form-group row pl-2">
                         <label for="inputPassword2" class="col-sm-3 col-form-label">Confirm Password</label>
                         <div class="col-sm-6" id="pass2">
-                          <input type="password" class="form-control" id="inputPassword2" onfocusout="validatePassword();" required>
-                          <div id="validpass2" class="valid-feedback"></div>
-                          <div id="invalidpass2" class="invalid-feedback"></div>
+                          <input type="password" class="form-control" id="input5" onfocusout="validatePassword();" required>
+                          <div id="valid5" class="valid-feedback"></div>
+                          <div id="invalid5" class="invalid-feedback"></div>
                         </div>
                       </div>
                     <div class="form-group row">
@@ -121,7 +126,7 @@
             </div>
           </div>
         </div>
-      </div>
+    </div>
 
     </body>
 </html>
