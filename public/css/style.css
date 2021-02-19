@@ -1,0 +1,40 @@
+.mt-10{
+    margin-top: 10vh;
+}
+
+.mb-10{
+    margin-bottom: 10vh;
+}
+
+.padding-top-lg{
+    padding-top: 10vh;
+}
+
+.padding-bottom-lg{
+    padding-bottom: 10vh;
+}
+
+.banner-bg{
+    background-color: #979595;
+}
+
+#banner{
+    border-radius: 1em;
+}
+
+.mt-mid{
+    top: 50vh !important;
+}
+
+.centered {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.borderit{
+    border-width: 20px !important;
+    border-radius: 1em;
+    border-color: black;
+}
