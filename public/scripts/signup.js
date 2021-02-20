@@ -1,4 +1,9 @@
-var listofInputs = {firstName:"", lastName:"", userName:"", email:"", password:"", password2:""}
+
+
+const socket = io.connect();
+//var listofInputs = {firstName:"", lastName:"", userName:"", email:"", password:"", password2:""}
+var listofInputs = new Array(6)
+listofInputs = ["", "", "", "", "", ""];
 var mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
 function validateEmail()
@@ -41,39 +46,40 @@ function validatePassword()
 
 function validateAll()
 {
-    let j = 0;
-    let allGood = false;
-    for(var i in listofInputs)
+    let allGood = [false, false, false, false, false, false];
+    for(var i = 0; i < listofInputs.length; i++)
     {
-        listofInputs[i] = document.getElementById("input"+j).value
+        listofInputs[i] = document.getElementById("input"+i).value
         if(listofInputs[i] == "")
         {
-            document.getElementById("input"+j).classList.remove("is-valid")
-            document.getElementById("input"+j).classList.add("is-invalid")
-            document.getElementById("invalid"+j).innerHTML = "required"
-            allGood = false
+            document.getElementById("input"+i).classList.remove("is-valid")
+            document.getElementById("input"+i).classList.add("is-invalid")
+            document.getElementById("invalid"+i).innerHTML = "required"
+            allGood[i] = false
         }
         else
         {
-            document.getElementById("input"+j).classList.remove("is-invalid")
-            document.getElementById("input"+j).classList.add("is-valid")
-            document.getElementById("invalid"+j).innerHTML = ""
-            allGood = true
+            document.getElementById("input"+i).classList.remove("is-invalid")
+            document.getElementById("input"+i).classList.add("is-valid")
+            document.getElementById("invalid"+i).innerHTML = ""
+            allGood[i] = true
         }
-        if(j == 3)
+        if(i == 3)
         {
             validateEmail();
         }
-        if(j == 4 || j == 5)
+        if(i == 4 || i == 5)
         {
             validatePassword();
         }
-        j++
-        if(j == 6)
-            j = 0
-        if(allGood) 
+    }
+    for(let i in allGood)
+    {
+        if(!allGood[i])
         {
-            //do stuff in db
+            return
         }
     }
+    socket.emit("newSignUp", listofInputs);
+    console.log("sent data to db");
 }
