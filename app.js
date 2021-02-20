@@ -1,17 +1,30 @@
 const express = require('express');
 const app = express();
-var http = require('http')
 const serv = require('http').createServer(app);
-const connectDB = require('./mongodbconnection/connection')
+//const connectDB = require('./mongodbconnection/connection')
 const Users = require('./mongodbconnection/users')
+const Admin = require('./mongodbconnection/admin')
+
+const mongoose = require('mongoose');
+//const connectDB = require('./mongodbconnection/connection');
+const URI = "mongodb+srv://neeraj:Yj3ZfnXrwI11dFjM@cluster0.kjior.mongodb.net/Users?retryWrites=true&w=majority"
+const connection = async ()=>{
+    await mongoose.connect(
+    URI, {
+    useNewUrlParser: true, 
+    useUnifiedTopology: true },
+    function(err){
+        if (err){
+            console.log(err)
+            return
+        }
+        console.log("db connected")
+    });
+}
+connection();
 
 
-connectDB();
-// let user = {};
-// user.firstName = "chomu";
-// user.lastName = "parsad";
-// let userModel = new Users(user);
-// userModel.save();
+//connectDB();
 //Yj3ZfnXrwI11dFjM
 //mongodb+srv://neeraj:<password>@cluster0.kjior.mongodb.net/myFirstDatabase?retryWrites=true&w=majority uri
 
@@ -59,5 +72,33 @@ io.on('connection', function(socket){
         userModel.save();
     })
 
+    socket.on("tryAdminLogin", async (email, pass)=>{
+        Admin.find({"email":email}, 
+            function(err, data) {
+                if(err){
+                    console.log(err);
+                }
+                else{
+                    if(data.length == 0){
+                        socket.emit("adminLogInFailed", "email");
+                        return
+                    }
+                    else
+                    {
+                        if(data[0].password == pass)
+                        {
+                            socket.emit("adminLoggedIn");
+                        }
+                        else
+                            socket.emit("adminLogInFailed", "password");
+                    }
+                }
+        });
+    })
+
+    socket.on("disconnect", ()=>{
+        console.log("socket disconnected")
+    })
 
 });
+
