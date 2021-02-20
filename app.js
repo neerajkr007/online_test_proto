@@ -52,6 +52,12 @@ app.get('/signup.html', (req, res) =>
     
 }); 
 
+app.get('/signin.html', (req, res) =>
+{
+    res.sendFile(__dirname + '/signin.html');
+    
+}); 
+
 
 app.use(express.static(__dirname + '/public'));
 
@@ -61,7 +67,7 @@ var io = require('socket.io')(serv,{});
 
 io.on('connection', function(socket){
     console.log("socket connected")
-    socket.on("newSignUp", (data)=>{
+    socket.on("newSignUp", async (data)=>{
         let user = {};
         user.firstName = data[0];
         user.lastName = data[1];
@@ -69,7 +75,8 @@ io.on('connection', function(socket){
         user.email = data[3];
         user.password = data[4];
         let userModel = new Users(user);
-        userModel.save();
+        await userModel.save();
+        socket.emit("signupComplete")
     })
 
     socket.on("tryAdminLogin", async (email, pass)=>{
@@ -87,10 +94,34 @@ io.on('connection', function(socket){
                     {
                         if(data[0].password == pass)
                         {
-                            socket.emit("adminLoggedIn");
+                            socket.emit("adminLoggedIn", data);
                         }
                         else
                             socket.emit("adminLogInFailed", "password");
+                    }
+                }
+        });
+    })
+
+    socket.on("tryLogin", async (email, pass)=>{
+        await Users.find({"email":email}, 
+            function(err, data) {
+                if(err){
+                    console.log(err);
+                }
+                else{
+                    if(data.length == 0){
+                        socket.emit("LogInFailed", "email");
+                        return
+                    }
+                    else
+                    {
+                        if(data[0].password == pass)
+                        {
+                            socket.emit("LoggedIn", data);
+                        }
+                        else
+                            socket.emit("LogInFailed", "password");
                     }
                 }
         });
