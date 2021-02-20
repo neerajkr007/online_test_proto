@@ -83,3 +83,13 @@ function validateAll()
     socket.emit("newSignUp", listofInputs);
     console.log("sent data to db");
 }
+
+socket.on("signupComplete", ()=>{
+    document.getElementById("modal-title").innerHTML = "Success";
+    document.getElementById("modal-body").innerHTML = "Sign up complete, close this and login to continue";
+    $('#modal').modal('toggle');
+    document.getElementById("modal-cancel").onclick = function () {
+        location.href = "https://online-test-prototype.herokuapp.com/signin.html";
+    };
+})
+    
