@@ -4,6 +4,7 @@ const serv = require('http').createServer(app);
 //const connectDB = require('./mongodbconnection/connection')
 const Users = require('./mongodbconnection/users')
 const Admin = require('./mongodbconnection/admin')
+const Beta = require('./mongodbconnection/beta')
 
 const mongoose = require('mongoose');
 //const connectDB = require('./mongodbconnection/connection');
@@ -35,38 +36,55 @@ app.get('/', (req, res) =>
     res.sendFile(__dirname + '/index.html');
 });
 
-app.get('/index.html', (req, res) =>
+app.get('/index', (req, res) =>
 {
     res.sendFile(__dirname + '/index.html');
 }); 
 
-app.get('/admin.html', (req, res) =>
+app.get('/admin', (req, res) =>
 {
     res.sendFile(__dirname + '/admin.html');
     
 }); 
 
-app.get('/signup.html', (req, res) =>
+app.get('/signup', (req, res) =>
 {
     res.sendFile(__dirname + '/signup.html');
     
 }); 
 
-app.get('/signin.html', (req, res) =>
+app.get('/signin', (req, res) =>
 {
     res.sendFile(__dirname + '/signin.html');
     
 }); 
+
+app.get('/betaTest', (req, res) =>
+{
+    res.sendFile(__dirname + '/betaTest.html');
+    
+}); 
+
 
 
 app.use(express.static(__dirname + '/public'));
 
 serv.listen(process.env.PORT || 3000); 
 
+function Token() {
+    length = 16;
+    chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var result = '';
+    for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+    return result;
+}
+
 var io = require('socket.io')(serv,{});
 
 io.on('connection', function(socket){
     console.log("socket connected")
+
+
     socket.on("newSignUp", async (data)=>{
         let user = {};
         user.firstName = data[0];
@@ -78,6 +96,7 @@ io.on('connection', function(socket){
         await userModel.save();
         socket.emit("signupComplete")
     })
+
 
     socket.on("tryAdminLogin", async (email, pass)=>{
         Admin.find({"email":email}, 
@@ -103,6 +122,7 @@ io.on('connection', function(socket){
         });
     })
 
+
     socket.on("tryLogin", async (email, pass)=>{
         await Users.find({"email":email}, 
             function(err, data) {
@@ -126,6 +146,37 @@ io.on('connection', function(socket){
                 }
         });
     })
+
+
+    socket.on("register", async (id)=>{
+        await Beta.find({"id":id},
+        async function(err, data) {
+            if(err){
+                console.log(err);
+            }
+            else{
+                if(data.length == 0){
+                    let i = {};
+                    i.id = id;
+                    i.token = Token();
+                    let beta = new Beta(i);
+                    await beta.save();
+                    socket.emit("registered")
+                    Users.findOneAndUpdate({"_id": id}, 
+                        {$push: {'tests': "beta"}}, 
+                        {new: true}, (err, result) => {
+                        //
+                    })
+                }
+                else
+                {
+                    socket.emit("alreadyRegistered")
+                }
+            }
+        });
+        
+    })
+
 
     socket.on("disconnect", ()=>{
         console.log("socket disconnected")

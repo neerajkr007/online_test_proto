@@ -15,6 +15,9 @@ const user = new mongoose.Schema({
     },
     password:{
         type:String
+    }, 
+    tests:{
+        type:Array
     }
 });
 

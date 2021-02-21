@@ -6,6 +6,9 @@ const admin = new mongoose.Schema({
     },
     password:{
         type:String
+    },
+    userName:{
+        type:String
     }
 });
 
