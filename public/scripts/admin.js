@@ -5,6 +5,19 @@ function tryLogin()
     socket.emit("tryAdminLogin", document.getElementById("input0").value, document.getElementById("input1").value);
 }
 
+function start()
+{
+    document.getElementById("modal-title").innerHTML = "Alert";
+    document.getElementById("modal-body").innerHTML = "are you sure you want to start BETA test ?";
+    document.getElementById("modal-cancel").innerHTML = "Sure"
+    document.getElementById("modal-cancel").onclick = ()=>{
+        $('#modal').modal('toggle'); 
+        console.log("test started")
+        socket.emit("startTest");
+    }
+    $('#modal').modal('toggle'); 
+}
+
 socket.on("adminLoggedIn", (data)=>{
     document.getElementById("input0").classList.remove("is-invalid");
     document.getElementById("input0").classList.add("is-valid");
@@ -17,7 +30,8 @@ socket.on("adminLoggedIn", (data)=>{
     $('#modal').modal('toggle');
     document.getElementById("modal-cancel").onclick = function(){
         document.getElementById("admin_login_form").style.display = "none";
-        document.getElementsByClassName("container")[0].innerHTML += '<div class="text-center mt-10"><h3 class="mt-10 display-4">Welcome, '+data[0].userName+'</h3></div>'
+        document.getElementById("welcome-msg").innerHTML = 'Welcome Admin, '+data[0].userName;   
+        document.getElementById("upcoming-tests").style.display = "block"; 
     }
 });
 

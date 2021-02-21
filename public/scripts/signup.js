@@ -89,7 +89,7 @@ socket.on("signupComplete", ()=>{
     document.getElementById("modal-body").innerHTML = "Sign up complete, close this and login to continue";
     $('#modal').modal('toggle');
     document.getElementById("modal-cancel").onclick = function () {
-        location.href = "https://online-test-prototype.herokuapp.com/signin.html";
+        location.href = "/signin";
     };
 })
     
