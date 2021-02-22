@@ -9,28 +9,92 @@ function tryLogin()
 }
 
 function testi(){
-    
-    
-    // document.getElementById("modal-body").innerHTML += '<div class="d-inline-flex spinner-grow text-secondary ml-3" role="status"><span class="sr-only">Loading...</span></div>'
-    // setTimeout(() => {
-    //     document.getElementById("modal-body").innerHTML += '<div class="d-inline-flex spinner-grow text-secondary ml-2" role="status"><span class="sr-only">Loading...</span></div>'
-    //     }, 50);
-    // setTimeout(() => {
-    //     document.getElementById("modal-body").innerHTML += '<div class="d-inline-flex spinner-grow text-secondary ml-2" role="status"><span class="sr-only">Loading...</span></div>'
-    //     }, 50);
 }
 
 
-function register(test){
+function register(data){
     //console.log(userData[0])
-    socket.emit("register", userData[0]._id)
-    console.log(userData[0]._id)
-    document.getElementById("modal-title").innerHTML = "Waiting";
-    document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: x-large;">Registering...</p>';
-    $('#modal').modal('toggle');
+    socket.emit("register", {id:userData[0]._id, d:data})
+    // document.getElementById("modal-title").innerHTML = "Waiting";
+    // document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: x-large;">Registering...</p>';
+    // $('#modal').modal('toggle');
 }
 
-socket.on("LoggedIn", (data)=>{
+function placeTestCards(data)
+{
+    //data 0= name, 1= discription 2= isAdmin 3= date 4= time 5 = login time
+    let testList = document.getElementById(data[6])
+    let div1 = document.createElement('div')
+    div1.setAttribute("id", data[0])
+    div1.setAttribute("class", "card mb-3")
+    div1.setAttribute("style", "max-width: 18rem; background-color: #89F9D8")
+    let div2 = document.createElement('div')
+    div2.setAttribute("class", "card-header")
+    div2.appendChild(document.createTextNode("Test"))
+    let div3 = document.createElement('div')
+    div3.setAttribute("class", "card-body")
+    let h5 = document.createElement('h5')
+    h5.setAttribute("class", "card-title")
+    h5.appendChild(document.createTextNode(data[0]))
+    let p1 = document.createElement('p')
+    p1.setAttribute("class", "card-text")
+    p1.appendChild(document.createTextNode(data[1]))
+    let p2 = document.createElement('p')
+    p2.setAttribute("class", "card-text")
+    p2.appendChild(document.createTextNode("test date : "+data[3]))
+    let p3 = document.createElement('p')
+    p3.setAttribute("class", "card-text")
+    p3.appendChild(document.createTextNode("test starts at : "+data[4]))
+    let p4 = document.createElement('p')
+    p4.setAttribute("class", "card-text")
+    p4.appendChild(document.createTextNode("login after : "+data[5] + " no late entry would be allowed"))
+    
+    div3.appendChild(h5)
+    div3.appendChild(p1)
+    div3.appendChild(p2)
+    div3.appendChild(p3)
+    div3.appendChild(p4)
+    if(!data[2])
+    {
+        let test = document.createElement('button')
+        test.setAttribute("id", data[0])
+        test.setAttribute("type", "button")
+        test.setAttribute("class", "btn btn-outline-success test-right")
+        if(data[7])
+        {
+            let d = new Date();
+            let date = data[3][0] + data[3][1];
+            
+            test.onclick = ()=>{
+
+                if(d.getMonth() ===  1&& d.getDate() === 22 && d.getHours() === 14 && d.getMinutes() <= 59 && d.getMinutes() >= 25)
+                {
+                    location.href = "/betaTest"
+                }
+                else
+                {
+                    document.getElementById("modal-title").innerHTML = "try later";
+                    document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">cant take this test right now. try on 21/02/21 between 5:00 - 5:10 PM</p>';
+                    $('#modal').modal('toggle');
+                }
+            }
+            test.appendChild(document.createTextNode("Take Test"))
+        }
+        else
+        {
+            test.onclick = ()=>{
+                register(data);
+            }
+            test.appendChild(document.createTextNode("register"))
+        }
+        div3.appendChild(test);
+    }
+    div1.appendChild(div2)
+    div1.appendChild(div3)
+    testList.appendChild(div1)
+}
+
+socket.on("LoggedIn", (data, testsData, myTestsData)=>{
     userData = data;
     document.getElementById("input0").classList.remove("is-invalid");
     document.getElementById("input0").classList.add("is-valid");
@@ -45,29 +109,17 @@ socket.on("LoggedIn", (data)=>{
         document.getElementById("login_form").style.display = "none";
         document.getElementById("welcome-msg").innerHTML = 'Welcome, '+data[0].userName;
         document.getElementById("upcoming-tests").style.display = "flex";
-    }
-    if(data[0].tests.includes("beta"))
+    }    
+    for(let i = 0; i<testsData.length; i++)
     {
-        var myTestList = document.getElementById("tests")
-        let but = document.createElement('button')
-        but.setAttribute("id", "betaTest");
-        but.setAttribute("class", "btn btn-outline-info");
-        but.setAttribute("type", "button");
-        but.onclick = ()=>{
-            var d = new Date()
-            if(d.getMonth() === 1 && d.getDate() === 21 && d.getHours() === 17 && d.getMinutes() <= 27 && d.getMinutes() >= 25)
-            {
-                location.href = "/betaTest"
-            }
-            else
-            {
-                document.getElementById("modal-title").innerHTML = "try later";
-                document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">cant take this test right now. try on 21/02/21 between 5:00 - 5:10 PM</p>';
-                $('#modal').modal('toggle');
-            }
-        }
-        but.appendChild(document.createTextNode("Beta Test"))
-        myTestList.appendChild(but);
+        let upcomingCardData = [testsData[i].testName, "Description", false, testsData[i].date, testsData[i].startTime, testsData[i].timeFrom, "tests"]
+        placeTestCards(upcomingCardData);
+        
+    }
+    for(let i = 0; i<myTestsData.length; i++)
+    {
+        let myCardData = [myTestsData[i].testName, "Description", false, myTestsData[i].date, myTestsData[i].startTime, myTestsData[i].timeFrom, "myTests", true]
+        placeTestCards(myCardData);
     }
 });
 
@@ -87,37 +139,15 @@ socket.on("LogInFailed", (data)=>{
 })
 
 socket.on("alreadyRegistered", ()=>{
+    document.getElementById("modal-title").innerHTML = "Failed";
+    document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">You are already Registered for this test</p>';
     $('#modal').modal('toggle');
-    setTimeout(() => {
-        document.getElementById("modal-title").innerHTML = "Failed";
-        document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">You are already Registered for this test</p>';
-    }, 2000);
 })
 
-socket.on("registered", ()=>{
+socket.on("registered", (testsData)=>{
+    document.getElementById("modal-title").innerHTML = "Success";
+    document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">Successfully registered for beta test<br></p>';
     $('#modal').modal('toggle');
-    setTimeout(() => {
-        document.getElementById("modal-title").innerHTML = "Success";
-        document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">Successfully registered for beta test<br></p>';
-    }, 2000);
-    var myTestList = document.getElementById("tests")
-        let but = document.createElement('button')
-        but.setAttribute("id", "betaTest");
-        but.setAttribute("class", "btn btn-outline-info");
-        but.setAttribute("type", "button");
-        but.onclick = ()=>{
-            var d = new Date();
-            if(d.getMonth() === 1 && d.getDate() === 21 && d.getHours() === 17 && d.getMinutes() <= 27 && d.getMinutes() >= 25)
-            {
-                location.href = "/betaTest"
-            }
-            else
-            {
-                document.getElementById("modal-title").innerHTML = "try later";
-                document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">cant take this test right now. try on 21/02/21 between 5:00 - 5:10 PM</p>';
-                $('#modal').modal('toggle');
-            }
-        }
-        but.appendChild(document.createTextNode("Beta Test"))
-        myTestList.appendChild(but);
+    let myCardData = [testsData[(testsData.length-1)].testName, "Description", false, testsData[(testsData.length-1)].date, testsData[(testsData.length-1)].startTime, testsData[(testsData.length-1)].timeFrom, "myTests", true]
+    placeTestCards(myCardData);
 })

@@ -5,6 +5,8 @@ const serv = require('http').createServer(app);
 const Users = require('./mongodbconnection/users')
 const Admin = require('./mongodbconnection/admin')
 const Beta = require('./mongodbconnection/beta')
+const Tests = require('./mongodbconnection/tests')
+var tests = []
 
 const mongoose = require('mongoose');
 //const connectDB = require('./mongodbconnection/connection');
@@ -19,6 +21,7 @@ const connection = async ()=>{
             console.log(err)
             return
         }
+        mongoose.set('useFindAndModify', false);
         console.log("db connected")
     });
 }
@@ -79,6 +82,7 @@ function Token() {
     return result;
 }
 
+    //console.log(testio[0].tests[1].testName)
 var io = require('socket.io')(serv,{});
 
 io.on('connection', function(socket){
@@ -100,7 +104,7 @@ io.on('connection', function(socket){
 
     socket.on("tryAdminLogin", async (email, pass)=>{
         Admin.find({"email":email}, 
-            function(err, data) {
+            async function(err, data) {
                 if(err){
                     console.log(err);
                 }
@@ -113,7 +117,8 @@ io.on('connection', function(socket){
                     {
                         if(data[0].password == pass)
                         {
-                            socket.emit("adminLoggedIn", data);
+                            let testsData = await Tests.find({})
+                            socket.emit("adminLoggedIn", data, testsData);
                         }
                         else
                             socket.emit("adminLogInFailed", "password");
@@ -124,8 +129,9 @@ io.on('connection', function(socket){
 
 
     socket.on("tryLogin", async (email, pass)=>{
+        let id;
         await Users.find({"email":email}, 
-            function(err, data) {
+            async function(err, data) {
                 if(err){
                     console.log(err);
                 }
@@ -138,7 +144,10 @@ io.on('connection', function(socket){
                     {
                         if(data[0].password == pass)
                         {
-                            socket.emit("LoggedIn", data);
+                            id = data[0]._id
+                            let testsData = await Tests.find({})
+                            let testio = await Users.find({"_id":id}, 'tests')
+                            socket.emit("LoggedIn", data, testsData, testio[0].tests);
                         }
                         else
                             socket.emit("LogInFailed", "password");
@@ -148,8 +157,8 @@ io.on('connection', function(socket){
     })
 
 
-    socket.on("register", async (id)=>{
-        await Beta.find({"id":id},
+    socket.on("register", async (registerData)=>{
+        await Beta.find({"id":registerData.id},
         async function(err, data) {
             if(err){
                 console.log(err);
@@ -157,16 +166,17 @@ io.on('connection', function(socket){
             else{
                 if(data.length == 0){
                     let i = {};
-                    i.id = id;
+                    i.id = registerData.id;
                     i.token = Token();
                     let beta = new Beta(i);
                     await beta.save();
-                    socket.emit("registered")
-                    Users.findOneAndUpdate({"_id": id}, 
-                        {$push: {'tests': "beta"}}, 
-                        {new: true}, (err, result) => {
-                        //
+                    Users.findOneAndUpdate({"_id": registerData.id}, 
+                        {$addToSet: {'tests': {"testName": registerData.d[0], "description": registerData.d[1], "date": registerData.d[3], "startTime": registerData.d[4], "timeFrom": registerData.d[5]}}}, 
+                        {new: true}, async (err, result) => {
+                            let testio = await Users.find({"_id":registerData.id}, 'tests')
+                            socket.emit("registered", testio[0].tests)
                     })
+                    
                 }
                 else
                 {
@@ -175,6 +185,34 @@ io.on('connection', function(socket){
             }
         });
         
+    })
+
+    
+    socket.on("newTest", async (_testData)=>{
+        await Tests.find({"testName":_testData[0]},
+        async function(err, data) {
+            if(err){
+                console.log(err);
+            }
+            else{
+                if(data.length == 0)
+                {
+                    let testData = {}
+                    testData.testName = _testData[0];
+                    testData.date = _testData[1];
+                    testData.startTime = _testData[2];
+                    testData.timeFrom = _testData[3];
+                    testData.timeTo = _testData[4];
+                    let tests = new Tests(testData);
+                    await tests.save();
+                    socket.emit("testAdded")
+                }
+                else
+                {
+                    socket.emit("testAlreadyExists")
+                }
+            }
+        })
     })
 
 
