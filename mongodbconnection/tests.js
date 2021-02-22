@@ -4,6 +4,9 @@ const tests = new mongoose.Schema({
     testName:{
         type:String
     },
+    participants:{
+        type:Array
+    },
     description:{
         type:String
     },

@@ -1,6 +1,6 @@
 const socket = io.connect();
 var listofInputs = new Array(5)
-listofInputs = ["", "", "", "", ""];
+listofInputs = ["", "", "", "", "", ""];
 
 
 function tryLogin()
@@ -28,7 +28,7 @@ function createTest()
 
 function validateAll()
 {
-    let allGood = [false, false, false, false, false];
+    let allGood = [false, false, false, false, false, false];
     for(var i = 0; i < listofInputs.length; i++)
     {
         listofInputs[i] = document.getElementById("input1"+i).value
@@ -153,7 +153,7 @@ socket.on("adminLoggedIn", (data, data1)=>{
     }
     for(let i = 0; i<data1.length; i++)
     {
-        let cardDate = [data1[i].testName, "Description", true, data1[i].date, data1[i].startTime, data1[i].timeFrom]
+        let cardDate = [data1[i].testName, data1.description, true, data1[i].date, data1[i].startTime, data1[i].timeFrom]
         placeTestCards(cardDate)
     }
 });
@@ -180,7 +180,7 @@ socket.on("testAdded", (id)=>{
     document.getElementById("modal-title").innerHTML = "Success";
     document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">Successfully created a new test<br>now add questions to it.</p>';
     $('#modal').modal('toggle');
-    let cardDate = [document.getElementById("input10").value, "Description", true, document.getElementById("input11").value, document.getElementById("input12").value, document.getElementById("input13").value]
+    let cardDate = [document.getElementById("input10").value, document.getElementById("input15").value, true, document.getElementById("input11").value, document.getElementById("input12").value, document.getElementById("input13").value]
     placeTestCards(cardDate)
 })
 

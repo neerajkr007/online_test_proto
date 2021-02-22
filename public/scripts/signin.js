@@ -15,7 +15,6 @@ function testi(){
 function register(data){
     //console.log(userData[0])
     socket.emit("register", {id:userData[0]._id, d:data})
-    userData = []
     // document.getElementById("modal-title").innerHTML = "Waiting";
     // document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: x-large;">Registering...</p>';
     // $('#modal').modal('toggle');
@@ -64,7 +63,7 @@ function placeTestCards(data)
         if(data[7])
         {
             let d = new Date();
-            let date = data[3][0] + data[3][1];
+            //let date = data[3][0] + data[3][1];
             
             test.onclick = ()=>{
 
@@ -75,7 +74,7 @@ function placeTestCards(data)
                 else
                 {
                     document.getElementById("modal-title").innerHTML = "try later";
-                    document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">cant take this test right now. try on 21/02/21 between 5:00 - 5:10 PM</p>';
+                    document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">cant take this test right now. try on '+data[3]+' after '+data[5]+'</p>';
                     $('#modal').modal('toggle');
                 }
             }
@@ -97,6 +96,7 @@ function placeTestCards(data)
 
 socket.on("LoggedIn", (data, testsData, myTestsData)=>{
     userData = data;
+    
     document.getElementById("input0").classList.remove("is-invalid");
     document.getElementById("input0").classList.add("is-valid");
     document.getElementById("input1").classList.remove("is-invalid");
@@ -115,7 +115,6 @@ socket.on("LoggedIn", (data, testsData, myTestsData)=>{
     {
         let upcomingCardData = [testsData[i].testName, "Description", false, testsData[i].date, testsData[i].startTime, testsData[i].timeFrom, "tests"]
         placeTestCards(upcomingCardData);
-        
     }
     for(let i = 0; i<myTestsData.length; i++)
     {
@@ -149,6 +148,6 @@ socket.on("registered", (testsData)=>{
     document.getElementById("modal-title").innerHTML = "Success";
     document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">Successfully registered for beta test<br></p>';
     $('#modal').modal('toggle');
-    let myCardData = [testsData[(testsData.length-1)].testName, "Description", false, testsData[(testsData.length-1)].date, testsData[(testsData.length-1)].startTime, testsData[(testsData.length-1)].timeFrom, "myTests", true]
+    let myCardData = [testsData.testName, "Description", false, testsData.date, testsData.startTime, testsData.timeFrom, "myTests", true]
     placeTestCards(myCardData);
 })

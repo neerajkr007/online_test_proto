@@ -7,7 +7,7 @@ const Admin = require('./mongodbconnection/admin')
 const Beta = require('./mongodbconnection/beta')
 const Tests = require('./mongodbconnection/tests')
 const Questions = require('./mongodbconnection/questions')
-var tests = []
+var testSchemas = {}
 
 const mongoose = require('mongoose');
 //const connectDB = require('./mongodbconnection/connection');
@@ -70,7 +70,6 @@ app.get('/betaTest', (req, res) =>
 }); 
 
 
-
 app.use(express.static(__dirname + '/public'));
 
 serv.listen(process.env.PORT || 3000); 
@@ -83,7 +82,10 @@ function Token() {
     return result;
 }
 
-    //console.log(testio[0].tests[1].testName)
+
+
+
+
 var io = require('socket.io')(serv,{});
 
 io.on('connection', function(socket){
@@ -148,6 +150,7 @@ io.on('connection', function(socket){
                             id = data[0]._id
                             let testsData = await Tests.find({})
                             let testio = await Users.find({"_id":id}, 'tests')
+                            console.log(testio)
                             socket.emit("LoggedIn", data, testsData, testio[0].tests);
                         }
                         else
@@ -159,32 +162,51 @@ io.on('connection', function(socket){
 
 
     socket.on("register", async (registerData)=>{
-        await Beta.find({"id":registerData.id},
-        async function(err, data) {
-            if(err){
+        await Tests.find({"testName":registerData.d[0]}, 
+        async function(err, data){
+            if(err)
+            {
                 console.log(err);
             }
-            else{
-                if(data.length == 0){
-                    let i = {};
-                    i.id = registerData.id;
-                    i.token = Token();
-                    let beta = new Beta(i);
-                    await beta.save();
-                    Users.findOneAndUpdate({"_id": registerData.id}, 
-                        {$addToSet: {'tests': {"testName": registerData.d[0], "description": registerData.d[1], "date": registerData.d[3], "startTime": registerData.d[4], "timeFrom": registerData.d[5]}}}, 
-                        {new: true}, async (err, result) => {
-                            let testio = await Users.find({"_id":registerData.id}, 'tests')
-                            socket.emit("registered", testio[0].tests)
-                    })
-                    
-                }
-                else
+            else
+            {
+                if(data[0].participants.includes(registerData.id))
                 {
                     socket.emit("alreadyRegistered")
                 }
+                else
+                {
+                    data[0].participants.push(registerData.id)
+                    await data[0].save(()=>{
+                        Users.findOne({"_id": registerData.id}, 
+                        async (err, data)=>{
+                            //console.log(data)
+                            if(err)
+                            {
+                                console.log(err);
+                            }
+                            else
+                            {
+                                data.tests.push(registerData.d[0])
+                                await data.save(async ()=>{
+                                    let testio = await Tests.find({"testName":registerData.d[0]})
+                                    //console.log(data)
+                                    socket.emit("registered", testio[0])
+                                    console.log(testio[0])
+                                })
+                            }
+                        })
+                    //     Users.findOneAndUpdate({"_id": registerData.id}, 
+                    //     {$addToSet: {'tests': {"testName": registerData.d[0], "description": registerData.d[1], "date": registerData.d[3], "startTime": registerData.d[4], "timeFrom": registerData.d[5]}}}, 
+                    //     {new: true}, async (err, result) => {
+                    //         let testio = await Users.find({"_id":registerData.id}, 'tests')
+                    //         socket.emit("registered", testio[0].tests)
+                    // })
+                    })
+                    
+                }
             }
-        });
+        })
         
     })
 
