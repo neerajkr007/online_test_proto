@@ -55,15 +55,8 @@ function validateAll()
         }
     }
     socket.emit("newTest", listofInputs)
+    document.getElementById("questionField").style.display = "block";
 }
-
-{/* <div class="card text-white bg-info mb-3" style="max-width: 18rem;">
-  <div class="card-header">Header</div>
-  <div class="card-body">
-    <h5 class="card-title">Info card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-  </div>
-</div> */}
 
 function placeTestCards(data)
 {
@@ -114,6 +107,35 @@ function placeTestCards(data)
     testList.appendChild(div1)
 }
 
+var testId
+
+function nextQuestion()
+{
+    if(document.getElementById("input30").value == "")
+    {   
+        document.getElementById("modal-title").innerHTML = "Alert";
+        document.getElementById("modal-body").innerHTML = "Please dont leave the Question tab empty";
+        $('#modal').modal('toggle');
+    }
+    else
+    {
+        let inputQuestion = []
+        for(let i = 0; i<5; i++)
+        {
+            //if(document.getElementById("input3"+i).value != "")
+             
+            inputQuestion.push(document.getElementById("input3"+i).value)
+        }
+        inputQuestion.push(testId);
+        socket.emit("inputQuestion", inputQuestion)
+    }
+}
+
+function finish()
+{
+    testId = ""
+}
+
 socket.on("adminLoggedIn", (data, data1)=>{
     document.getElementById("input0").classList.remove("is-invalid");
     document.getElementById("input0").classList.add("is-valid");
@@ -151,7 +173,10 @@ socket.on("adminLogInFailed", (data)=>{
     }
 })
 
-socket.on("testAdded", ()=>{
+
+
+socket.on("testAdded", (id)=>{
+    testId = id
     document.getElementById("modal-title").innerHTML = "Success";
     document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">Successfully created a new test<br>now add questions to it.</p>';
     $('#modal').modal('toggle');
@@ -166,4 +191,14 @@ socket.on("testAlreadyExists", ()=>{
     document.getElementById("modal-title").innerHTML = "Failed";
     document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">test with that name already exists</p>';
     $('#modal').modal('toggle');
+})
+
+socket.on("saved", ()=>{
+    document.getElementById("modal-title").innerHTML = "success";
+    document.getElementById("modal-body").innerHTML = "question saved";
+    $('#modal').modal('toggle');
+    for(let i = 0; i<5; i++)
+        {
+            document.getElementById("input3"+i).value = ""
+        }
 })

@@ -6,6 +6,7 @@ const Users = require('./mongodbconnection/users')
 const Admin = require('./mongodbconnection/admin')
 const Beta = require('./mongodbconnection/beta')
 const Tests = require('./mongodbconnection/tests')
+const Questions = require('./mongodbconnection/questions')
 var tests = []
 
 const mongoose = require('mongoose');
@@ -204,8 +205,10 @@ io.on('connection', function(socket){
                     testData.timeFrom = _testData[3];
                     testData.timeTo = _testData[4];
                     let tests = new Tests(testData);
-                    await tests.save();
-                    socket.emit("testAdded")
+                    await tests.save(function(err, data)
+                    {
+                        socket.emit("testAdded", data._id)
+                    });
                 }
                 else
                 {
@@ -213,6 +216,25 @@ io.on('connection', function(socket){
                 }
             }
         })
+    })
+
+    socket.on("inputQuestion", async (inputQuestion)=>{
+        let q = {}
+        q.question = inputQuestion[0];
+        q.option1 = inputQuestion[1];
+        q.option2 = inputQuestion[2];
+        q.option3 = inputQuestion[3];
+        q.option4 = inputQuestion[4];
+        let d = new Questions(q);
+        await d.save(async function(err, data){
+            await Questions.findOneAndUpdate(
+                { "_id": data._id }, 
+                { $addToSet: { "testId":  inputQuestion[5]} },
+                {new: true}, function(err, data){
+                    socket.emit("saved");
+                }
+            );
+        });
     })
 
 

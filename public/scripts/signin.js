@@ -15,6 +15,7 @@ function testi(){
 function register(data){
     //console.log(userData[0])
     socket.emit("register", {id:userData[0]._id, d:data})
+    userData = []
     // document.getElementById("modal-title").innerHTML = "Waiting";
     // document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: x-large;">Registering...</p>';
     // $('#modal').modal('toggle');

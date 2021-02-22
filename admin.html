@@ -84,14 +84,21 @@
           <div class="justify-content-center mb-10 row mt-10">
             <div id="testForm" class="border border-dark rounded col-md-10" style="max-width: 70vw; padding: 0 !important; display: none;">
               <div class="pb-3 pt-3 mb-3 pl-2" style="background-color: #2c75ff;">
-                <h3 class="display-4 text-white" style="font-size: large;">Admin Login</h3>
+                <h3 class="display-4 text-white" style="font-size: large;">Fill the form</h3>
               </div>
               <form>
                   <div class="form-group row pl-2">
                     <label for="input10" class="col-sm-4 col-form-label">Test Name :</label>
-                    <div class="col-sm-8">
+                    <div class="col-sm-6">
                       <input type="text" class="form-control" id="input10" placeholder="enter test name">
                       <div id="invalid10" class="invalid-feedback"></div>
+                    </div>
+                  </div>
+                  <div class="form-group row pl-2">
+                    <label for="input15" class="col-sm-4 col-form-label">Test Description :</label>
+                    <div class="col-sm-7">
+                      <input type="text" class="form-control" id="input15">
+                      <div id="invalid15" class="invalid-feedback"></div>
                     </div>
                   </div>
                   <div class="form-group row pl-2">
@@ -129,8 +136,27 @@
                       <button type="button" class="btn btn-primary mt-2 ml-2" onclick="validateAll()">Add Questions</button>
                     </div>
                   </div>
-              </form>
+              </form>   
+              <div id="questionField" style="display: none;">
+                <ul class="list-group mt-10">
+                  <li id="q1q1" class="list-group-item" style="max-width: 80vw;">
+                    <label for="textarea">Question</label>
+                    <textarea class="form-control mb-4" id="input30" rows="3"></textarea>
+                    <label for="option1">option 1</label>
+                    <textarea class="form-control mb-3" id="input31" rows="1" style="max-width: 300px;"></textarea>
+                    <label for="option1">option 2</label>
+                    <textarea class="form-control mb-3" id="input32" rows="1" style="max-width: 300px;"></textarea>
+                    <label for="option1">option 3</label>
+                    <textarea class="form-control mb-3" id="input33" rows="1" style="max-width: 300px;"></textarea>
+                    <label for="option1">option 4</label>
+                    <textarea class="form-control mb-3" id="input34" rows="1" style="max-width: 300px;"></textarea>
+                  </li>
+                </ul>
+                <button class="btn btn-outline-success mb-5" onclick="nextQuestion()"> Save Question </button>
+                <button class="btn btn-outline-success ml-5 mb-5" onclick="finish()"> Finish </button>
+              </div>          
             </div>
+            
           </div>
         </div>
 	</div>
