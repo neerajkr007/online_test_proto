@@ -132,7 +132,7 @@ io.on('connection', function(socket){
 
 
     socket.on("tryLogin", async (email, pass)=>{
-        let id;
+        
         await Users.find({"email":email}, 
             async function(err, data) {
                 if(err){
@@ -147,11 +147,15 @@ io.on('connection', function(socket){
                     {
                         if(data[0].password == pass)
                         {
-                            id = data[0]._id
-                            let testsData = await Tests.find({})
-                            let testio = await Users.find({"_id":id}, 'tests')
-                            console.log(testio)
-                            socket.emit("LoggedIn", data, testsData, testio[0].tests);
+                            let testsList = [];
+                            testsList = data[0].tests
+                            let myTestsData = [];
+                            for(let i = 0; i < testsList.length; i++)
+                            {
+                                myTestsData[i] = await Tests.findOne({"testName":testsList[i]})
+                            }
+                            let testData = await Tests.find({})
+                            socket.emit("LoggedIn", data, testData, myTestsData);
                         }
                         else
                             socket.emit("LogInFailed", "password");
@@ -225,7 +229,7 @@ io.on('connection', function(socket){
                     testData.date = _testData[1];
                     testData.startTime = _testData[2];
                     testData.timeFrom = _testData[3];
-                    testData.timeTo = _testData[4];
+                    testData.description = _testData[4];
                     let tests = new Tests(testData);
                     await tests.save(function(err, data)
                     {
@@ -247,18 +251,58 @@ io.on('connection', function(socket){
         q.option2 = inputQuestion[2];
         q.option3 = inputQuestion[3];
         q.option4 = inputQuestion[4];
+        q.questionType = inputQuestion[5];
         let d = new Questions(q);
-        await d.save(async function(err, data){
-            await Questions.findOneAndUpdate(
-                { "_id": data._id }, 
-                { $addToSet: { "testId":  inputQuestion[5]} },
-                {new: true}, function(err, data){
-                    socket.emit("saved");
-                }
-            );
-        });
+        await d.save()
+        socket.emit("saved");
     })
 
+    socket.on("showQuestions", async (index, type)=>{
+        if(index == 3){
+            let questions = await Questions.find({})
+            socket.emit("showQuestions", questions, type)
+        }
+        else{
+            let questions = await Questions.find({"questionType":index})
+            socket.emit("showQuestions", questions, type)
+        }
+    })
+
+    socket.on("updateQuestion", async (Qid)=>{
+        let question = await Questions.findOne({"_id":Qid})
+        socket.emit("updateQuestion", question)
+    })
+
+    socket.on("updateValues", async (val)=>{
+        let question = await Questions.findOne({"_id":val.qid})
+        if(val.n[0] != "")
+        {
+            question.question = val.n[0];
+        }
+        if(val.n[1] != "")
+        {
+            question.option1 = val.n[1];
+        }
+        if(val.n[2] != "")
+        {
+            question.option2 = val.n[2];
+        }
+        if(val.n[3] != "")
+        {
+            question.option3 = val.n[3];
+        }
+        if(val.n[4] != "")
+        {
+            question.option4 = val.n[4];
+        }
+        if(val.n[5] != "")
+        {
+            question.questionType = val.n[5];
+        }
+        await question.save(()=>{
+            socket.emit("updated")
+        });
+    })
 
     socket.on("disconnect", ()=>{
         console.log("socket disconnected")

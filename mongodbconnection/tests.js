@@ -18,9 +18,6 @@ const tests = new mongoose.Schema({
     },
     timeFrom:{
         type:String
-    },
-    timeTo:{
-        type:String
     }
 });
 

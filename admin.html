@@ -15,7 +15,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.css">
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.js"></script>
-
+    
 	
 	<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #F96361;">
 	  <a class="navbar-brand text-white" href="index">ProtoType</a>
@@ -73,6 +73,103 @@
         <div class="text-center mt-10">
           <h3 class="mt-10 display-4" id="welcome-msg"></h3>
         </div>
+        <div id="questionBank" class="mt-5" style="display:none">
+          <h3 class="mt-10 display-4">Question Bank :</h3>
+            <button class="btn btn-outline-success ml-2 mt-5 mb-5" onclick='slide("viewQuestionsOptions"); slide("questions"); slide2("questionField");slide2("updateSearch");'> View Questions </button>
+            <button class="btn btn-outline-success ml-2 mt-5 mb-5" onclick='slide("questionField"); slide2("viewQuestionsOptions"); slide2("questions");slide2("updateSearch");'> Add Questions </button>  
+            <button class="btn btn-outline-success ml-2 mt-5 mb-5" onclick='slide("updateSearch"); slide2("viewQuestionsOptions"); slide2("questions"); slide2("questionField"); updateList();'> Update Questions </button>
+            <div id="viewQuestionsOptions" style="display: none;">
+              <button class="btn btn-outline-success ml-2 mb-2" id="viewQuestion0" onclick="showQuestions(0); //slide('questions')"> Easy Questions </button>
+              <button class="btn btn-outline-success ml-2 mb-2" id="viewQuestion1" onclick="showQuestions(1); //slide('questions')"> Medium Questions </button>
+              <button class="btn btn-outline-success ml-2 mb-2" id="viewQuestion2" onclick="showQuestions(2); //slide('questions')"> Hard Questions </button>
+              <button class="btn btn-outline-success ml-2 mb-2" id="viewQuestion3" onclick="showQuestions(3); //slide('questions')"> All Questions </button>
+            </div>
+            <div id="questions" class="mt-4" style="display: none;">
+              <ul id="questions0" class="list-group">
+              </ul>
+            </div>
+            <div id="questionField" class="justify-content-center mb-10 row mt-10 ml-2" style="display: none;">
+              <div  class="border border-dark rounded col-md-10" style="max-width: 70vw; padding: 0 !important;">
+                <ul class="list-group">
+                  <li class="list-group-item" style="max-width: 80vw;">
+                    <label for="input30">Question</label>
+                    <textarea class="form-control mb-4" id="input30" rows="3"></textarea>
+                    <label for="input31">option 1</label>
+                    <textarea class="form-control mb-3" id="input31" rows="1" style="max-width: 300px;"></textarea>
+                    <label for="input32">option 2</label>
+                    <textarea class="form-control mb-3" id="input32" rows="1" style="max-width: 300px;"></textarea>
+                    <label for="input33">option 3</label>
+                    <textarea class="form-control mb-3" id="input33" rows="1" style="max-width: 300px;"></textarea>
+                    <label for="input34">option 4</label>
+                    <textarea class="form-control mb-3" id="input34" rows="1" style="max-width: 300px;"></textarea>
+                    <label for="raido">Question type</label>
+                    <div class="form-check" id="raido">
+                      <input class="form-check-input" type="radio" name="difficulty" id="input35" value="option1" checked>
+                      <label class="form-check-label" for="input35">
+                        Easy Question
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="difficulty" id="input36" value="option1" >
+                      <label class="form-check-label" for="input36">
+                        Medium Question
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="difficulty" id="input37" value="option1" >
+                      <label class="form-check-label" for="input37">
+                        Hard Question
+                      </label>
+                    </div>
+                  </li>
+                </ul>
+                <button class="btn btn-outline-success ml-2 mb-3 mt-3" onclick="nextQuestion()"> Save Question </button>
+                <button class="btn btn-outline-success ml-5 mb-3 mt-3" onclick="finish()"> Finish </button>
+              </div> 
+            </div>
+            <div id="updateSearch" class="mt-4" style="display: none;">
+              <ul id="questions1" class="list-group">
+              </ul>
+            </div>
+            <div id="questionUpdateField" class="justify-content-center mb-10 row mt-10 ml-2" style="display: none;">
+              <div  class="border border-dark rounded col-md-10" style="max-width: 70vw; padding: 0 !important;">
+                <ul class="list-group">
+                  <li class="list-group-item" style="max-width: 80vw;">
+                    <label for="input40">Question</label>
+                    <textarea class="form-control mb-4" id="input40" rows="3"></textarea>
+                    <label for="input41">option 1</label>
+                    <textarea class="form-control mb-3" id="input41" rows="1" style="max-width: 300px;"></textarea>
+                    <label for="input42">option 2</label>
+                    <textarea class="form-control mb-3" id="input42" rows="1" style="max-width: 300px;"></textarea>
+                    <label for="input43">option 3</label>
+                    <textarea class="form-control mb-3" id="input43" rows="1" style="max-width: 300px;"></textarea>
+                    <label for="input44">option 4</label>
+                    <textarea class="form-control mb-3" id="input44" rows="1" style="max-width: 300px;"></textarea>
+                    <label for="raido">Question type</label>
+                    <div class="form-check" id="raido">
+                      <input class="form-check-input" type="radio" name="difficulty" id="input45" value="option1" checked>
+                      <label class="form-check-label" for="input45">
+                        Easy Question
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="difficulty" id="input46" value="option1" >
+                      <label class="form-check-label" for="input46">
+                        Medium Question
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="difficulty" id="input47" value="option1" >
+                      <label class="form-check-label" for="input47">
+                        Hard Question
+                      </label>
+                    </div>
+                  </li>
+                </ul>
+                <button id="updateButton" class="btn btn-outline-success ml-2 mb-3 mt-3" onclick="">Update Question</button>
+              </div> 
+            </div>
+        </div>
         <div id="upcoming-tests" class="mt-5" style="display:none">
           <h3 class="mt-10 display-4">Upcoming Tests :</h3>
           <div id="tests" class="mt-4">
@@ -95,10 +192,10 @@
                     </div>
                   </div>
                   <div class="form-group row pl-2">
-                    <label for="input15" class="col-sm-4 col-form-label">Test Description :</label>
+                    <label for="input14" class="col-sm-4 col-form-label">Test Description :</label>
                     <div class="col-sm-7">
-                      <input type="text" class="form-control" id="input15">
-                      <div id="invalid15" class="invalid-feedback"></div>
+                      <input type="text" class="form-control" id="input14">
+                      <div id="invalid14" class="invalid-feedback"></div>
                     </div>
                   </div>
                   <div class="form-group row pl-2">
@@ -122,13 +219,10 @@
                     </div>
                   </div>
                   <div class="form-group row pl-2">
-                    <label for="input13" class="col-sm-4 col-form-label">time to login:</label>
+                    <label for="input13" class="col-sm-4 col-form-label">Login at :</label>
                     <div class="col-sm-6">
                       <input type="time" class="form-control d-inline-flex" id="input13" style="max-width: 170px;">
                       <div id="invalid13" class="invalid-feedback"></div>
-                      <p class="d-inline-flex ml-2 mr-2">to</p>
-                      <input type="time" class="form-control d-inline-flex" id="input14" style="max-width: 170px;">
-                      <div id="invalid14" class="invalid-feedback"></div>
                     </div>
                   </div>
                   <div class="form-group row">
@@ -136,25 +230,7 @@
                       <button type="button" class="btn btn-primary mt-2 ml-2" onclick="validateAll()">Add Questions</button>
                     </div>
                   </div>
-              </form>   
-              <div id="questionField" style="display: none;">
-                <ul class="list-group mt-10">
-                  <li class="list-group-item" style="max-width: 80vw;">
-                    <label for="textarea">Question</label>
-                    <textarea class="form-control mb-4" id="input30" rows="3"></textarea>
-                    <label for="option1">option 1</label>
-                    <textarea class="form-control mb-3" id="input31" rows="1" style="max-width: 300px;"></textarea>
-                    <label for="option1">option 2</label>
-                    <textarea class="form-control mb-3" id="input32" rows="1" style="max-width: 300px;"></textarea>
-                    <label for="option1">option 3</label>
-                    <textarea class="form-control mb-3" id="input33" rows="1" style="max-width: 300px;"></textarea>
-                    <label for="option1">option 4</label>
-                    <textarea class="form-control mb-3" id="input34" rows="1" style="max-width: 300px;"></textarea>
-                  </li>
-                </ul>
-                <button class="btn btn-outline-success ml-2 mb-5" onclick="nextQuestion()"> Save Question </button>
-                <button class="btn btn-outline-success ml-5 mb-5" onclick="finish()"> Finish </button>
-              </div>          
+              </form>            
             </div>
             
           </div>

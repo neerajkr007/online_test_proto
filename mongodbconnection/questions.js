@@ -1,9 +1,6 @@
 const mongoose = require('mongoose')
 
 const questions = new mongoose.Schema({
-    testId:{
-        type:Array
-    },
     question:{
         type:String
     },
@@ -17,6 +14,9 @@ const questions = new mongoose.Schema({
         type:String
     },
     option4:{
+        type:String
+    },
+    questionType:{
         type:String
     }
 });

@@ -1,6 +1,6 @@
 const socket = io.connect();
 var listofInputs = new Array(5)
-listofInputs = ["", "", "", "", "", ""];
+listofInputs = ["", "", "", "", ""];
 
 
 function tryLogin()
@@ -28,7 +28,7 @@ function createTest()
 
 function validateAll()
 {
-    let allGood = [false, false, false, false, false, false];
+    let allGood = [false, false, false, false, false];
     for(var i = 0; i < listofInputs.length; i++)
     {
         listofInputs[i] = document.getElementById("input1"+i).value
@@ -54,8 +54,8 @@ function validateAll()
             return
         }
     }
+
     socket.emit("newTest", listofInputs)
-    document.getElementById("questionField").style.display = "block";
 }
 
 function placeTestCards(data)
@@ -126,14 +126,99 @@ function nextQuestion()
              
             inputQuestion.push(document.getElementById("input3"+i).value)
         }
-        inputQuestion.push(testId);
-        socket.emit("inputQuestion", inputQuestion)
+        for(var i = 5; i < 8; i++)
+        {
+            if(document.getElementById("input3"+i).checked)
+            {
+                inputQuestion.push((i-5))
+                socket.emit("inputQuestion", inputQuestion)
+                return
+            }
+        }
+        
     }
 }
 
 function finish()
 {
     testId = ""
+}
+
+function placeQuestion(data)
+{
+    // 0=id, 1=q, 2-5=o
+    let mainUl = document.getElementById("questions"+data[0]);
+    let mainLi = document.createElement('li')
+    mainLi.setAttribute("class", "list-group-item")
+    mainLi.setAttribute("style", "max-width: 80vw;")
+    let question = document.createElement('p')
+    question.appendChild(document.createTextNode(data[1]))
+    let optionsUl = document.createElement('ul')
+    optionsUl.setAttribute("class", "list-group")
+    for(let i = 0; i<4;i++)
+    {
+        if(data[(i+2)] != "")
+        {
+            let optionLi = document.createElement("li")
+            optionLi.setAttribute("class", "list-group-item option_Style hov text-white")
+            optionLi.setAttribute("style", "max-width: 200px;")
+            let option = document.createElement('p')
+            option.appendChild(document.createTextNode(data[(i+2)]))
+            optionLi.appendChild(option)
+            optionsUl.appendChild(optionLi)
+        }
+    }
+    mainLi.appendChild(question)
+    mainLi.appendChild(optionsUl)
+    if(data[0] != 0)
+    {
+        let button = document.createElement('button')
+        button.setAttribute("class", "btn btn-outline-success mt-2 offset-md-10")
+        button.onclick = ()=>{
+            document.getElementById("updateSearch").style.display = "none"
+            socket.emit("updateQuestion", data[6]);
+        }
+        button.appendChild(document.createTextNode("Update"))
+        mainLi.appendChild(button);
+    }
+    mainUl.appendChild(mainLi)
+}
+
+function slide(id){
+    if(document.getElementById(id).style.display == "none"){
+        //$("#viewQuestionsOptions").slideDown("slow");
+        document.getElementById(id).style.display = "block"
+    }
+    else{
+        //$("#viewQuestionsOptions").slideUp("slow");
+        document.getElementById(id).style.display = "none"
+    }
+}
+
+function slide2(id){
+    if(document.getElementById(id).style.display == "block"){
+        document.getElementById(id).style.display = "none"
+    }
+}
+
+function showQuestions(index)
+{
+    //if(document.getElementById("questions").style.display == "none")
+    {
+        document.getElementById("questions").style.display = "block"
+        socket.emit("showQuestions", index, 0);
+    }
+    // else
+    // {
+    //     document.getElementById("questions").style.display = "none"
+    // }
+    
+}
+
+function updateList()
+{
+    document.getElementById("updateSearch").style.display = "block"
+    socket.emit("showQuestions", 3, 1);
 }
 
 socket.on("adminLoggedIn", (data, data1)=>{
@@ -150,10 +235,11 @@ socket.on("adminLoggedIn", (data, data1)=>{
         document.getElementById("admin_login_form").style.display = "none";
         document.getElementById("welcome-msg").innerHTML = 'Welcome Admin, '+data[0].userName;   
         document.getElementById("upcoming-tests").style.display = "block"; 
+        document.getElementById("questionBank").style.display = "block";
     }
     for(let i = 0; i<data1.length; i++)
     {
-        let cardDate = [data1[i].testName, data1.description, true, data1[i].date, data1[i].startTime, data1[i].timeFrom]
+        let cardDate = [data1[i].testName, data1[i].description, true, data1[i].date, data1[i].startTime, data1[i].timeFrom]
         placeTestCards(cardDate)
     }
 });
@@ -173,14 +259,12 @@ socket.on("adminLogInFailed", (data)=>{
     }
 })
 
-
-
 socket.on("testAdded", (id)=>{
     testId = id
     document.getElementById("modal-title").innerHTML = "Success";
     document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">Successfully created a new test<br>now add questions to it.</p>';
     $('#modal').modal('toggle');
-    let cardDate = [document.getElementById("input10").value, document.getElementById("input15").value, true, document.getElementById("input11").value, document.getElementById("input12").value, document.getElementById("input13").value]
+    let cardDate = [document.getElementById("input10").value, document.getElementById("input14").value, true, document.getElementById("input11").value, document.getElementById("input12").value, document.getElementById("input13").value]
     placeTestCards(cardDate)
 })
 
@@ -201,4 +285,72 @@ socket.on("saved", ()=>{
         {
             document.getElementById("input3"+i).value = ""
         }
+})
+
+socket.on("showQuestions", (questions, type)=>{
+    document.getElementById("questions"+type).innerHTML = ""
+    for(let i in questions)
+    {   
+        let questionData = [type, questions[i].question, questions[i].option1, questions[i].option2, questions[i].option3, questions[i].option4, questions[i]._id]
+        placeQuestion(questionData)
+    }
+})
+
+socket.on("updateQuestion", (question)=>{
+    let ogValues = [];
+    let newValues = [];
+    document.getElementById("questionUpdateField").style.display = "block"
+    ogValues[0] = document.getElementById("input40").value = question.question;
+    ogValues[1] = document.getElementById("input41").value = question.option1;
+    ogValues[2] = document.getElementById("input42").value = question.option2;
+    ogValues[3] = document.getElementById("input43").value = question.option3;
+    ogValues[4] = document.getElementById("input44").value = question.option4;
+    ogValues[5] = question.questionType;
+    if(question.questionType == "0")
+    {
+        document.getElementById("input45").checked = true;
+    }
+    else if(question.questionType == "1")
+    {
+        document.getElementById("input46").checked = true;
+    }
+    else if(question.questionType == "2")
+    {
+        document.getElementById("input47").checked = true;
+    }
+    document.getElementById("updateButton").onclick = ()=>{
+        for(let i = 0; i < 6; i++)
+        {
+            if(document.getElementById("input4"+i).value != ogValues[i])
+            {
+                newValues[i] = document.getElementById("input4"+i).value;
+            }
+            else
+            {
+                newValues[i] = ""
+            }
+        }
+        for(var i = 5; i < 8; i++)
+        {
+            if(document.getElementById("input4"+i).checked && ogValues[5] != (i-5))
+            {
+                newValues[5] = String(i-5)
+                socket.emit("updateValues", {n:newValues, qid:question._id})
+                return
+            }
+            else
+            {
+                newValues[5] = ""
+            }
+        }
+        socket.emit("updateValues", {n:newValues, qid:question._id})
+    }
+})
+
+socket.on("updated", ()=>{
+    document.getElementById("modal-title").innerHTML = "Success";
+    document.getElementById("modal-body").innerHTML = "Successfully Updated the question";
+    $('#modal').modal('toggle');
+    document.getElementById("questionUpdateField").style.display = "none"
+    updateList();
 })

@@ -113,12 +113,12 @@ socket.on("LoggedIn", (data, testsData, myTestsData)=>{
     }    
     for(let i = 0; i<testsData.length; i++)
     {
-        let upcomingCardData = [testsData[i].testName, "Description", false, testsData[i].date, testsData[i].startTime, testsData[i].timeFrom, "tests"]
+        let upcomingCardData = [testsData[i].testName, testsData[i].description, false, testsData[i].date, testsData[i].startTime, testsData[i].timeFrom, "tests"]
         placeTestCards(upcomingCardData);
     }
     for(let i = 0; i<myTestsData.length; i++)
     {
-        let myCardData = [myTestsData[i].testName, "Description", false, myTestsData[i].date, myTestsData[i].startTime, myTestsData[i].timeFrom, "myTests", true]
+        let myCardData = [myTestsData[i].testName, myTestsData[i].description, false, myTestsData[i].date, myTestsData[i].startTime, myTestsData[i].timeFrom, "myTests", true]
         placeTestCards(myCardData);
     }
 });
@@ -148,6 +148,6 @@ socket.on("registered", (testsData)=>{
     document.getElementById("modal-title").innerHTML = "Success";
     document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">Successfully registered for beta test<br></p>';
     $('#modal').modal('toggle');
-    let myCardData = [testsData.testName, "Description", false, testsData.date, testsData.startTime, testsData.timeFrom, "myTests", true]
+    let myCardData = [testsData.testName, testsData.description, false, testsData.date, testsData.startTime, testsData.timeFrom, "myTests", true]
     placeTestCards(myCardData);
 })
