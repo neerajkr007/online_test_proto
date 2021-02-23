@@ -301,14 +301,10 @@ io.on('connection', function(socket){
         socket.emit("deleted");
     })
 
-    socket.on("details", newTab=>{
-        
-        app.get('/'+newTab, (req, res) =>
-        {
-            res.sendFile(__dirname + '/blank.html');
-            
-        }); 
-        socket.emit("changePage", ('/'+newTab))
+    socket.on("noOfParticipants", async (tName)=>{
+        let test = await Tests.findOne({"testName": tName}) 
+        console.log(test.participants.length)
+        socket.emit("noOfParticipants", test.participants.length)
     })
 
     socket.on("disconnect", ()=>{

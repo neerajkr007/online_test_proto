@@ -96,17 +96,33 @@ function placeTestCards(data)
     if(data[2])
     {
         let test = document.createElement('button')
-        test.setAttribute("id", data[0])
-        test.setAttribute("type", "button")
-        test.setAttribute("class", "btn btn-outline-info test-right")
         let newLink=data[0].replace(/\s+/g, '')
-            //newLink=newLink.toLowerCase();
+        test.setAttribute("id", newLink+"details")
+        test.setAttribute("type", "button")
+        test.setAttribute("class", "btn btn-outline-info")
         test.onclick = ()=>{
-            console.log("do something when clicked on upcoming test by admin");
-            socket.emit("details", newLink)
+            //document.getElementById(newLink+"Participants").style.display = "block";
+            socket.emit("noOfParticipants", data[0])
         }
         test.appendChild(document.createTextNode('view details'))
         div1.appendChild(test);
+        let participants = document.createElement('div')
+        participants.setAttribute("id", newLink+"Participants")
+        participants.setAttribute("style", "display:none;")
+        participants.appendChild(document.createTextNode('no. of Participants :'))
+        div1.appendChild(participants)
+        socket.on("noOfParticipants", n=>{
+            let participants2 = document.createElement('div')
+            participants2.setAttribute("id", newLink+"num")
+            participants2.setAttribute("style", "display:none;")
+            participants2.setAttribute("class", "text-center")
+            participants2.appendChild(document.createTextNode(n))
+            div1.appendChild(participants2)
+            $("#"+newLink+"Participants").slideDown("slow");
+            $("#"+newLink+"num").slideDown("slow");
+        })
+        
+        
     }
     testList.appendChild(div1)
 }
@@ -374,9 +390,4 @@ socket.on("deleted", ()=>{
     document.getElementById("modal-body").innerHTML = "Successfully deleted the question";
     $('#modal').modal('toggle');
     updateList();
-})
-
-socket.on("changePage", (l)=>{
-    var queryString = "?para1=" + "testi";
-    location.replace(l+queryString)
 })
