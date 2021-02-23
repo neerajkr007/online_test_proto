@@ -135,7 +135,9 @@ function nextQuestion()
                 return
             }
         }
-        
+        document.getElementById("modal-title").innerHTML = "Alert";
+        document.getElementById("modal-body").innerHTML = "Please choose a difficulty";
+        $('#modal').modal('toggle');
     }
 }
 
@@ -179,7 +181,15 @@ function placeQuestion(data)
             socket.emit("updateQuestion", data[6]);
         }
         button.appendChild(document.createTextNode("Update"))
+        let button2 = document.createElement('button')
+        button2.setAttribute("class", "btn btn-outline-danger mt-2 ml-2")
+        button2.onclick = ()=>{
+            document.getElementById("updateSearch").style.display = "none"
+            socket.emit("deleteQuestion", data[6]);
+        }
+        button2.appendChild(document.createTextNode("Delete"))
         mainLi.appendChild(button);
+        mainLi.appendChild(button2);
     }
     mainUl.appendChild(mainLi)
 }
@@ -352,5 +362,12 @@ socket.on("updated", ()=>{
     document.getElementById("modal-body").innerHTML = "Successfully Updated the question";
     $('#modal').modal('toggle');
     document.getElementById("questionUpdateField").style.display = "none"
+    updateList();
+})
+
+socket.on("deleted", ()=>{
+    document.getElementById("modal-title").innerHTML = "Success";
+    document.getElementById("modal-body").innerHTML = "Successfully deleted the question";
+    $('#modal').modal('toggle');
     updateList();
 })

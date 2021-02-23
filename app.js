@@ -304,6 +304,11 @@ io.on('connection', function(socket){
         });
     })
 
+    socket.on("deleteQuestion", async (qid)=>{
+        await Questions.findOneAndDelete({"_id":qid});
+        socket.emit("deleted");
+    })
+
     socket.on("disconnect", ()=>{
         console.log("socket disconnected")
     })
