@@ -22,12 +22,15 @@ function register(data){
 
 function placeTestCards(data)
 {
-    //data 0= name, 1= discription 2= isAdmin 3= date 4= time 5 = login time
+    //data 0= name, 1= discription 2= isAdmin 3= date 4= time 5 = login time 6=tests
     let testList = document.getElementById(data[6])
     let div1 = document.createElement('div')
     div1.setAttribute("id", data[0])
     div1.setAttribute("class", "card mb-3")
-    div1.setAttribute("style", "max-width: 18rem; background-color: #89F9D8")
+    if(data[7])
+        div1.setAttribute("style", "max-width: 18rem; background-color: #AFF9CA")
+    else
+        div1.setAttribute("style", "max-width: 18rem; background-color: #FAFAA3")
     let div2 = document.createElement('div')
     div2.setAttribute("class", "card-header")
     div2.appendChild(document.createTextNode("Test"))

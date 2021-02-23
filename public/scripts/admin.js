@@ -65,7 +65,7 @@ function placeTestCards(data)
     let div1 = document.createElement('div')
     div1.setAttribute("id", data[0])
     div1.setAttribute("class", "card mb-3")
-    div1.setAttribute("style", "max-width: 18rem; background-color: #89F9D8")
+    div1.setAttribute("style", "max-width: 18rem; background-color: #AFF9CA")
     let div2 = document.createElement('div')
     div2.setAttribute("class", "card-header")
     div2.appendChild(document.createTextNode("Test"))
@@ -86,17 +86,6 @@ function placeTestCards(data)
     let p4 = document.createElement('p')
     p4.setAttribute("class", "card-text")
     p4.appendChild(document.createTextNode("login after : "+data[5] + " no late entry would be allowed"))
-    if(data[2])
-    {
-        let test = document.createElement('button')
-        test.setAttribute("id", data[0])
-        test.setAttribute("type", "button")
-        test.setAttribute("class", "btn btn-outline-info test-right")
-        test.onclick = ()=>{
-            console.log("do something when clicked on upcoming test by admin")
-        }
-        test.appendChild(document.createTextNode(data[0]))
-    }
     div3.appendChild(h5)
     div3.appendChild(p1)
     div3.appendChild(p2)
@@ -104,6 +93,21 @@ function placeTestCards(data)
     div3.appendChild(p4)
     div1.appendChild(div2)
     div1.appendChild(div3)
+    if(data[2])
+    {
+        let test = document.createElement('button')
+        test.setAttribute("id", data[0])
+        test.setAttribute("type", "button")
+        test.setAttribute("class", "btn btn-outline-info test-right")
+        let newLink=data[0].replace(/\s+/g, '')
+            //newLink=newLink.toLowerCase();
+        test.onclick = ()=>{
+            console.log("do something when clicked on upcoming test by admin");
+            socket.emit("details", newLink)
+        }
+        test.appendChild(document.createTextNode('view details'))
+        div1.appendChild(test);
+    }
     testList.appendChild(div1)
 }
 
@@ -370,4 +374,9 @@ socket.on("deleted", ()=>{
     document.getElementById("modal-body").innerHTML = "Successfully deleted the question";
     $('#modal').modal('toggle');
     updateList();
+})
+
+socket.on("changePage", (l)=>{
+    var queryString = "?para1=" + "testi";
+    location.replace(l+queryString)
 })

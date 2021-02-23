@@ -4,7 +4,6 @@ const serv = require('http').createServer(app);
 //const connectDB = require('./mongodbconnection/connection')
 const Users = require('./mongodbconnection/users')
 const Admin = require('./mongodbconnection/admin')
-const Beta = require('./mongodbconnection/beta')
 const Tests = require('./mongodbconnection/tests')
 const Questions = require('./mongodbconnection/questions')
 var testSchemas = {}
@@ -60,12 +59,6 @@ app.get('/signup', (req, res) =>
 app.get('/signin', (req, res) =>
 {
     res.sendFile(__dirname + '/signin.html');
-    
-}); 
-
-app.get('/betaTest', (req, res) =>
-{
-    res.sendFile(__dirname + '/betaTest.html');
     
 }); 
 
@@ -196,7 +189,6 @@ io.on('connection', function(socket){
                                     let testio = await Tests.find({"testName":registerData.d[0]})
                                     //console.log(data)
                                     socket.emit("registered", testio[0])
-                                    console.log(testio[0])
                                 })
                             }
                         })
@@ -307,6 +299,16 @@ io.on('connection', function(socket){
     socket.on("deleteQuestion", async (qid)=>{
         await Questions.findOneAndDelete({"_id":qid});
         socket.emit("deleted");
+    })
+
+    socket.on("details", newTab=>{
+        
+        app.get('/'+newTab, (req, res) =>
+        {
+            res.sendFile(__dirname + '/blank.html');
+            
+        }); 
+        socket.emit("changePage", ('/'+newTab))
     })
 
     socket.on("disconnect", ()=>{
