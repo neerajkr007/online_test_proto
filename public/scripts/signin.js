@@ -24,6 +24,21 @@ function register(data){
     // $('#modal').modal('toggle');
 }
 
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+}
+
 function placeTestCards(data)
 {
     //data 0= name, 1= discription 2= isAdmin 3= date 4= time 5 = login time 6=tests
@@ -83,10 +98,12 @@ function placeTestCards(data)
             today = dd + '/' + mm + '/' + yyyy;
             let date = data[3];
             test.onclick = ()=>{
-
-                socket.emit("currentMACTest", data[0])
+                var _user = getCookie("token"+userData[0]._id);
+                //console.log(user)
+                socket.emit("currentMACTest", {testName:data[0], user:_user})
                 socket.on("currentMACTest", result=>{
-                    if(!result)
+                    console.log(result)
+                    if(result)
                     {
                         if(date == today && data[4] == time)
                         {
@@ -151,8 +168,6 @@ socket.on("LoggedIn", (data, testsData, myTestsData)=>{
         let myCardData = [myTestsData[i].testName, myTestsData[i].description, false, myTestsData[i].date, myTestsData[i].startTime, myTestsData[i].timeFrom, "myTests", true]
         placeTestCards(myCardData);
     }
-    var user = getCookie("token");
-    console.log(user)
 });
 
 socket.on("LogInFailed", (data)=>{
@@ -176,21 +191,6 @@ socket.on("alreadyRegistered", ()=>{
     $('#modal').modal('toggle');
 })
 
-function getCookie(cname) {
-    var name = cname + "=";
-    var ca = document.cookie.split(';');
-    for(var i = 0; i < ca.length; i++) {
-      var c = ca[i];
-      while (c.charAt(0) == ' ') {
-        c = c.substring(1);
-      }
-      if (c.indexOf(name) == 0) {
-        return c.substring(name.length, c.length);
-      }
-    }
-    return "";
-}
-
 socket.on("registered", (testsData, token)=>{
     document.getElementById("modal-title").innerHTML = "Success";
     document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">Successfully registered for beta test<br></p>';
@@ -200,8 +200,8 @@ socket.on("registered", (testsData, token)=>{
     var d = new Date();
     d.setTime(d.getTime() + (365 * 24 * 60 * 60 * 1000));
     var expires = "expires="+d.toUTCString();
-    document.cookie = "token="+token+ ";" + expires
-    
+    document.cookie = "token"+userData[0]._id+"="+token+ ";" + expires
+    console.log("token"+userData[0]._id+"="+token)
 })
 
 var once2 = true

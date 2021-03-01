@@ -178,13 +178,16 @@ io.on('connection', function(socket){
                             }
                             let testData = await Tests.find({})
                             socket.emit("LoggedIn", data, testData, myTestsData);
-                            socket.on("currentMACTest", async (testName)=>{
+                            socket.on("currentMACTest", async (d)=>{
                                 let a = await Users.findOne({"email":data[0].email})
                                 for(let i = 0; i < a.tests.length; i++)
                                 {
-                                    if(a.tests[i].testName == testName)
+                                    if(a.tests[i].testName == d.testName)
                                     {
-                                        // device fix
+                                        if(a.tests[i].validMacs == d.user)
+                                        {
+                                            socket.emit("currentMACTest",true)
+                                        }
                                     }
                                 }
                             })
