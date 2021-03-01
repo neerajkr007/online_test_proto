@@ -151,6 +151,8 @@ socket.on("LoggedIn", (data, testsData, myTestsData)=>{
         let myCardData = [myTestsData[i].testName, myTestsData[i].description, false, myTestsData[i].date, myTestsData[i].startTime, myTestsData[i].timeFrom, "myTests", true]
         placeTestCards(myCardData);
     }
+    var user = getCookie("token");
+    console.log(user)
 });
 
 socket.on("LogInFailed", (data)=>{
@@ -174,12 +176,32 @@ socket.on("alreadyRegistered", ()=>{
     $('#modal').modal('toggle');
 })
 
-socket.on("registered", (testsData)=>{
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+}
+
+socket.on("registered", (testsData, token)=>{
     document.getElementById("modal-title").innerHTML = "Success";
     document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">Successfully registered for beta test<br></p>';
     $('#modal').modal('toggle');
     let myCardData = [testsData.testName, testsData.description, false, testsData.date, testsData.startTime, testsData.timeFrom, "myTests", true]
     placeTestCards(myCardData);
+    var d = new Date();
+    d.setTime(d.getTime() + (365 * 24 * 60 * 60 * 1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = "token="+token+ ";" + expires
+    
 })
 
 var once2 = true

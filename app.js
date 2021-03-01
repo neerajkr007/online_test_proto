@@ -6,7 +6,6 @@ const Users = require('./mongodbconnection/users')
 const Admin = require('./mongodbconnection/admin')
 const Tests = require('./mongodbconnection/tests')
 const Questions = require('./mongodbconnection/questions')
-const network = require('network');
 
 
 
@@ -185,10 +184,7 @@ io.on('connection', function(socket){
                                 {
                                     if(a.tests[i].testName == testName)
                                     {
-                                        network.get_active_interface(async function(err, obj) {
-                                            if(a.tests[i].validMacs.includes(obj.mac_address))
-                                                socket.emit("currentMACTest", true)
-                                        })
+                                        // device fix
                                     }
                                 }
                             })
@@ -229,16 +225,12 @@ io.on('connection', function(socket){
                             else
                             {
                                 data.tests.push({"testName": registerData.d[0]})
-                                network.get_interfaces_list(async function(err, list) {
-                                    for(let i = 0; i < list.length; i++)
-                                    {
-                                        data.tests[(data.tests.length - 1)].validMacs.push(list[i].mac_address)
-                                    }
-                                    await data.save(async ()=>{
-                                        let testio = await Tests.find({"testName":registerData.d[0]})
-                                        //console.log(data)
-                                        socket.emit("registered", testio[0])
-                                    })
+                                let token = Token();
+                                data.tests[(data.tests.length - 1)].validMacs.push(token)
+                                await data.save(async ()=>{
+                                     let testio = await Tests.find({"testName":registerData.d[0]})
+                                     //console.log(data)
+                                    socket.emit("registered", testio[0], token)
                                 })
                             }
                         })
