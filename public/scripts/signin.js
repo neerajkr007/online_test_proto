@@ -44,7 +44,10 @@ function placeTestCards(data)
     //data 0= name, 1= discription 2= isAdmin 3= date 4= time 5 = login time 6=tests
     let testList = document.getElementById(data[6])
     let div1 = document.createElement('div')
-    div1.setAttribute("id", data[0])
+    if(data[7])
+        div1.setAttribute("id", data[0]+"1")
+    else
+        div1.setAttribute("id", data[0]+"0")
     div1.setAttribute("class", "card mb-3")
     if(data[7])
         div1.setAttribute("style", "max-width: 18rem; background-color: #AFF9CA")
@@ -81,7 +84,7 @@ function placeTestCards(data)
         let test = document.createElement('button')
         test.setAttribute("id", "startTest")
         test.setAttribute("type", "button")
-        test.setAttribute("class", "btn btn-outline-success test-right")
+        test.setAttribute("class", "btn btn-outline-success col-md-6")
         if(data[7])
         {
             var today = new Date();
@@ -98,11 +101,9 @@ function placeTestCards(data)
             today = dd + '/' + mm + '/' + yyyy;
             let date = data[3];
             test.onclick = ()=>{
-                var _user = getCookie("token"+userData[0]._id);
-                //console.log(user)
-                socket.emit("currentMACTest", {testName:data[0], user:_user})
+                var token = getCookie("token"+userData[0]._id);
+                socket.emit("currentMACTest", {testName:data[0], user:token})
                 socket.on("currentMACTest", result=>{
-                    console.log(result)
                     if(result)
                     {
                         if(date == today && data[4] == time)
@@ -135,6 +136,18 @@ function placeTestCards(data)
             test.appendChild(document.createTextNode("register"))
         }
         div3.appendChild(test);
+        if(data[7])
+        {
+            let test2 = document.createElement('button')
+            test2.setAttribute("id", "startTest2")
+            test2.setAttribute("type", "button")
+            test2.setAttribute("class", "btn btn-outline-danger col-md-5 offset-md-1")
+            test2.appendChild(document.createTextNode("unregister"))
+            test2.onclick = ()=>{
+                socket.emit("unregister", {uid:userData[0]._id, testName:data[0]} )
+            }
+            div3.appendChild(test2);
+        }
     }
     div1.appendChild(div2)
     div1.appendChild(div3)
@@ -201,7 +214,7 @@ socket.on("registered", (testsData, token)=>{
     d.setTime(d.getTime() + (365 * 24 * 60 * 60 * 1000));
     var expires = "expires="+d.toUTCString();
     document.cookie = "token"+userData[0]._id+"="+token+ ";" + expires
-    console.log("token"+userData[0]._id+"="+token)
+    //console.log("token"+userData[0]._id+"="+token)
 })
 
 var once2 = true
@@ -225,4 +238,11 @@ socket.on("alreadyLoggedIn", ()=>{
         once2 = false
     }
     $('#modal').modal('toggle');
+})
+
+socket.on("unregister", (testName)=>{
+    document.getElementById("modal-title").innerHTML = "Success";
+    document.getElementById("modal-body").innerHTML = "you have unregistered from this test";
+    $('#modal').modal('toggle');
+    document.getElementById(testName+"1").style.display = "none"
 })

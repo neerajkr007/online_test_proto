@@ -106,7 +106,6 @@ io.on('connection', function(socket){
         socket.emit("signupComplete")
     })
 
-
     socket.on("tryAdminLogin", async (email, pass)=>{
         Admin.find({"email":email}, 
             async function(err, data) {
@@ -140,7 +139,6 @@ io.on('connection', function(socket){
                 }
         });
     })
-
 
     socket.on("tryLogin", async (email, pass)=>{
         
@@ -188,6 +186,10 @@ io.on('connection', function(socket){
                                         {
                                             socket.emit("currentMACTest",true)
                                         }
+                                        else
+                                        {
+                                            socket.emit("currentMACTest",false)
+                                        }
                                     }
                                 }
                             })
@@ -199,7 +201,6 @@ io.on('connection', function(socket){
                 }
         });
     })
-
 
     socket.on("register", async (registerData)=>{
         await Tests.find({"testName":registerData.d[0]}, 
@@ -251,7 +252,6 @@ io.on('connection', function(socket){
         
     })
 
-    
     socket.on("newTest", async (_testData)=>{
         await Tests.find({"testName":_testData[0]},
         async function(err, data) {
@@ -366,7 +366,7 @@ io.on('connection', function(socket){
         if(t == "admin")
         {
             let admin = await Admin.findOne({"email":id})
-            if(admin.alreadyLoggedIn)
+            if(user != null && admin.alreadyLoggedIn)
             {
                 admin.alreadyLoggedIn = false
                 await admin.save();
@@ -375,10 +375,29 @@ io.on('connection', function(socket){
         else
         {
             let user = await Users.findOne({"email":id})
-            if(user.alreadyLoggedIn)
+            if(user != null && user.alreadyLoggedIn)
             {
                 user.alreadyLoggedIn = false
                 await user.save();
+            }
+        }
+    })
+
+    socket.on("unregister", async(d)=>{
+        let test = await Tests.findOne({"testName":d.testName})
+        //console.log(test)
+        index = test.participants.indexOf(d.uid)
+        test.participants.splice(index, 1)
+        let user = await Users.findOne({"_id":d.uid})
+        for(let i = 0; i < user.tests.length; i++)
+        {
+            if(user.tests[i].testName == d.testName)
+            {
+                user.tests.splice(i, 1)
+                await test.save();
+                await user.save();
+                socket.emit("unregister", d.testName)
+                return
             }
         }
     })
