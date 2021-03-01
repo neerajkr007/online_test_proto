@@ -77,7 +77,13 @@ function Token() {
 
 
 
+var SOCKET = {
+    _socket: this,
+    email: "",
+    isAdmin: false
+}
 
+var SOCKET_LIST = []
 
 var io = require('socket.io')(serv,{});
 
@@ -111,8 +117,19 @@ io.on('connection', function(socket){
                     }
                     else
                     {
+                        if(data[0].alreadyLoggedIn)
+                        {
+                            socket.emit("alreadyLoggedIn")
+                            return
+                        }
                         if(data[0].password == pass)
                         {
+                            data[0].alreadyLoggedIn = true
+                            await data[0].save()
+                            SOCKET = socket
+                            SOCKET.email = data[0].email
+                            SOCKET.isAdmin = true
+                            SOCKET_LIST[socket.id] = SOCKET;
                             let testsData = await Tests.find({})
                             socket.emit("adminLoggedIn", data, testsData);
                         }
@@ -138,8 +155,20 @@ io.on('connection', function(socket){
                     }
                     else
                     {
+                        if(data[0].alreadyLoggedIn)
+                        {
+                            socket.emit("alreadyLoggedIn")
+                            return
+                        }
                         if(data[0].password == pass)
                         {
+                            data[0].alreadyLoggedIn = true
+                            await data[0].save()
+                            SOCKET = socket
+                            SOCKET.email = data[0].email
+                            SOCKET.isAdmin = false
+                            SOCKET_LIST[socket.id] = SOCKET;
+                            //console.log(SOCKET_LIST)
                             let testsList = [];
                             testsList = data[0].tests
                             let myTestsData = [];
@@ -244,6 +273,7 @@ io.on('connection', function(socket){
         q.option3 = inputQuestion[3];
         q.option4 = inputQuestion[4];
         q.questionType = inputQuestion[5];
+        q.ans = inputQuestion[6]
         let d = new Questions(q);
         await d.save()
         socket.emit("saved");
@@ -287,9 +317,13 @@ io.on('connection', function(socket){
         {
             question.option4 = val.n[4];
         }
+        if(val.n[6] != "")
+        {
+            question.questionType = val.n[6];
+        }
         if(val.n[5] != "")
         {
-            question.questionType = val.n[5];
+            question.ans = val.n[5];
         }
         await question.save(()=>{
             socket.emit("updated")
@@ -307,7 +341,57 @@ io.on('connection', function(socket){
         socket.emit("noOfParticipants", test.participants.length)
     })
 
-    socket.on("disconnect", ()=>{
+    socket.on("numberOfQuestion", async (id)=>{
+        let listofQuestions = await Questions.find({"questionType": id})
+        socket.emit("numberOfQuestion", id, listofQuestions.length)
+    })
+
+    socket.on("logout", async ()=>{
+        if(SOCKET_LIST[socket.id].isAdmin)
+        {
+            let admin = await Admin.findOne({"email":SOCKET_LIST[socket.id].email})
+            if(admin.alreadyLoggedIn)
+            {
+                admin.alreadyLoggedIn = false
+                await admin.save();
+            }
+        }
+        else
+        {
+            let user = await Users.findOne({"email":SOCKET_LIST[socket.id].email})
+            if(user.alreadyLoggedIn)
+            {
+                user.alreadyLoggedIn = false
+                await user.save();
+            }
+        }
+    })
+
+    socket.on("disconnect", async ()=>{
+        try{
+            if(SOCKET_LIST[socket.id].isAdmin)
+            {
+                let admin = await Admin.findOne({"email":SOCKET_LIST[socket.id].email})
+                if(admin.alreadyLoggedIn)
+                {
+                    admin.alreadyLoggedIn = false
+                    await admin.save();
+                }
+            }
+            else
+            {
+                let user = await Users.findOne({"email":SOCKET_LIST[socket.id].email})
+                if(user.alreadyLoggedIn)
+                {
+                    user.alreadyLoggedIn = false
+                    await user.save();
+                }
+            }
+        }
+        catch(e)
+        {
+            
+        }
         console.log("socket disconnected")
     })
 

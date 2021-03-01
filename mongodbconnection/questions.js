@@ -18,6 +18,9 @@ const questions = new mongoose.Schema({
     },
     questionType:{
         type:String
+    },
+    ans:{
+        type:String
     }
 });
 

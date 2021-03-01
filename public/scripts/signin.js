@@ -1,6 +1,8 @@
 
 const socket = io.connect();
 
+
+
 var userData;
 
 function tryLogin()
@@ -153,4 +155,10 @@ socket.on("registered", (testsData)=>{
     $('#modal').modal('toggle');
     let myCardData = [testsData.testName, testsData.description, false, testsData.date, testsData.startTime, testsData.timeFrom, "myTests", true]
     placeTestCards(myCardData);
+})
+
+socket.on("alreadyLoggedIn", ()=>{
+    document.getElementById("modal-title").innerHTML = "Failed";
+    document.getElementById("modal-body").innerHTML = "already logged in on other device/browser tab";
+    $('#modal').modal('toggle');
 })

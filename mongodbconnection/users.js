@@ -18,6 +18,9 @@ const user = new mongoose.Schema({
     }, 
     tests:{
         type:Array
+    },
+    alreadyLoggedIn:{
+        type:Boolean
     }
 });
 

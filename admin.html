@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.1/socket.io.js" integrity="sha512-oFOCo2/3DtjrJG4N27BjSLQWoiBv171sK6a+JiWjp/7agxC2nCUP358AqzxkBUb5jX8g6CYLPdSKQTbC0weCwA==" crossorigin="anonymous"></script>
-    <title>Welcome</title>
+    <title>Admin</title>
 </head>
 <body >
 	
@@ -102,6 +102,8 @@
                     <textarea class="form-control mb-3" id="input33" rows="1" style="max-width: 300px;"></textarea>
                     <label for="input34">option 4</label>
                     <textarea class="form-control mb-3" id="input34" rows="1" style="max-width: 300px;"></textarea>
+                    <label for="input38">Correct Answer</label>
+                    <textarea class="form-control mb-3" id="input38" rows="1" style="max-width: 300px;" placeholder="enter correct option number"></textarea>
                     <label for="raido">Question type</label>
                     <div class="form-check" id="raido">
                       <input class="form-check-input" type="radio" name="difficulty" id="input35" value="option1" checked>
@@ -123,8 +125,7 @@
                     </div>
                   </li>
                 </ul>
-                <button class="btn btn-outline-success ml-2 mb-3 mt-3" onclick="nextQuestion()"> Save Question </button>
-                <button class="btn btn-outline-success ml-5 mb-3 mt-3" onclick="finish()"> Finish </button>
+                <button class="btn btn-outline-success ml-2 mb-3 mt-3" onclick="nextQuestion()"> Add Question </button>
               </div> 
             </div>
             <div id="updateSearch" class="mt-4" style="display: none;">
@@ -145,22 +146,25 @@
                     <textarea class="form-control mb-3" id="input43" rows="1" style="max-width: 300px;"></textarea>
                     <label for="input44">option 4</label>
                     <textarea class="form-control mb-3" id="input44" rows="1" style="max-width: 300px;"></textarea>
+                    <label for="input45">Correct Ans</label>
+                    <textarea class="form-control mb-3" id="input45" rows="1" style="max-width: 300px;"></textarea>
+                    <div id="invalid45" class="invalid-feedback"></div>
                     <label for="raido">Question type</label>
                     <div class="form-check" id="raido">
-                      <input class="form-check-input" type="radio" name="difficulty" id="input45" value="option1" checked>
-                      <label class="form-check-label" for="input45">
-                        Easy Question
-                      </label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="difficulty" id="input46" value="option1" >
+                      <input class="form-check-input" type="radio" name="difficulty" id="input46" value="option1" checked>
                       <label class="form-check-label" for="input46">
-                        Medium Question
+                        Easy Question
                       </label>
                     </div>
                     <div class="form-check">
                       <input class="form-check-input" type="radio" name="difficulty" id="input47" value="option1" >
                       <label class="form-check-label" for="input47">
+                        Medium Question
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="difficulty" id="input48" value="option1" >
+                      <label class="form-check-label" for="input48">
                         Hard Question
                       </label>
                     </div>
@@ -221,6 +225,33 @@
                     <div class="col-sm-6">
                       <input type="time" class="form-control d-inline-flex" id="input13" style="max-width: 170px;">
                       <div id="invalid13" class="invalid-feedback"></div>
+                    </div>
+                  </div>
+                  <div class="dropdown form-group row pl-2">
+                    <label for="input14" class="col-sm-4 col-form-label">Easy Questions :</label>
+                    <button class="btn btn-secondary dropdown-toggle col-sm-3" onclick="numberOfQuestion(0)" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Number of questions
+                    </button>
+                    <div class="dropdown-menu" id="dropdown0" aria-labelledby="dropdownMenuButton">
+                      
+                    </div>
+                  </div>
+                  <div class="dropdown form-group row pl-2">
+                    <label for="input14" class="col-sm-4 col-form-label">Medium Questions :</label>
+                    <button class="btn btn-secondary dropdown-toggle col-sm-3" onclick="numberOfQuestion(1)" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Number of questions
+                    </button>
+                    <div class="dropdown-menu" id="dropdown1" aria-labelledby="dropdownMenuButton">
+                      
+                    </div>
+                  </div>
+                  <div class="dropdown form-group row pl-2">
+                    <label for="input14" class="col-sm-4 col-form-label">Hard Questions :</label>
+                    <button class="btn btn-secondary dropdown-toggle col-sm-3" onclick="numberOfQuestion(2)" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Number of questions
+                    </button>
+                    <div class="dropdown-menu" id="dropdown2" aria-labelledby="dropdownMenuButton">
+                      
                     </div>
                   </div>
                   <div class="form-group row">

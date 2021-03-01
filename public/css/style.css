@@ -53,3 +53,8 @@
   border-width: 1px;
   border-color: black;
 }
+
+.dropdownItems:hover {
+    cursor: pointer;
+    background-color: gray;
+}

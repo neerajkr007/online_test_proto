@@ -8,6 +8,8 @@ function tryLogin()
     socket.emit("tryAdminLogin", document.getElementById("input0").value, document.getElementById("input1").value);
 }
 
+window.onunload = ()=>{socket.emit("logout")}
+
 function start()
 {
     document.getElementById("modal-title").innerHTML = "Alert";
@@ -151,6 +153,7 @@ function nextQuestion()
             if(document.getElementById("input3"+i).checked)
             {
                 inputQuestion.push((i-5))
+                inputQuestion.push(document.getElementById("input38").value)
                 socket.emit("inputQuestion", inputQuestion)
                 return
             }
@@ -168,7 +171,7 @@ function finish()
 
 function placeQuestion(data)
 {
-    // 0=id, 1=q, 2-5=o
+    // 0=id, 1=q, 2-5=o 6= 
     let mainUl = document.getElementById("questions"+data[0]);
     let mainLi = document.createElement('li')
     mainLi.setAttribute("class", "list-group-item")
@@ -190,8 +193,20 @@ function placeQuestion(data)
             optionsUl.appendChild(optionLi)
         }
     }
+
     mainLi.appendChild(question)
     mainLi.appendChild(optionsUl)
+    let optionLi2 = document.createElement("li")
+    optionLi2.setAttribute("class", "list-group-item option_Style hov text-white mb-3")
+    optionLi2.setAttribute("style", "max-width: 200px;")
+    let option2 = document.createElement('p')
+    option2.appendChild(document.createTextNode(data[(Number(data[7]) + 1)]))
+    let label = document.createElement('p')
+    label.appendChild(document.createTextNode('correct Answer :'))
+    label.setAttribute("class", "mt-5 mb-2")
+    optionLi2.appendChild(option2)
+    optionsUl.appendChild(label)
+    optionsUl.appendChild(optionLi2)
     if(data[0] != 0)
     {
         let button = document.createElement('button')
@@ -249,6 +264,23 @@ function updateList()
 {
     document.getElementById("updateSearch").style.display = "block"
     socket.emit("showQuestions", 3, 1);
+}
+
+let once = [0, 1, 2];
+
+function numberOfQuestion(id)
+{
+    if(once.includes(id))
+    {
+        let index = once.indexOf(id);
+        once.splice(index, 1)
+        socket.emit("numberOfQuestion", id)
+    }
+}
+
+function setNumberOfQuestions(id, n)
+{
+    // set questions from here
 }
 
 socket.on("adminLoggedIn", (data, data1)=>{
@@ -320,8 +352,9 @@ socket.on("saved", ()=>{
 socket.on("showQuestions", (questions, type)=>{
     document.getElementById("questions"+type).innerHTML = ""
     for(let i in questions)
-    {   
-        let questionData = [type, questions[i].question, questions[i].option1, questions[i].option2, questions[i].option3, questions[i].option4, questions[i]._id]
+    {
+        let questionData = [type, questions[i].question, questions[i].option1, questions[i].option2, questions[i].option3, questions[i].option4, questions[i]._id, questions[i].ans]
+        //console.log(questionData[(Number(questionData[7]) + 2)])
         placeQuestion(questionData)
     }
 })
@@ -335,18 +368,19 @@ socket.on("updateQuestion", (question)=>{
     ogValues[2] = document.getElementById("input42").value = question.option2;
     ogValues[3] = document.getElementById("input43").value = question.option3;
     ogValues[4] = document.getElementById("input44").value = question.option4;
-    ogValues[5] = question.questionType;
+    ogValues[6] = question.questionType;
+    ogValues[5] = document.getElementById("input45").value = question.ans;
     if(question.questionType == "0")
-    {
-        document.getElementById("input45").checked = true;
-    }
-    else if(question.questionType == "1")
     {
         document.getElementById("input46").checked = true;
     }
-    else if(question.questionType == "2")
+    else if(question.questionType == "1")
     {
         document.getElementById("input47").checked = true;
+    }
+    else if(question.questionType == "2")
+    {
+        document.getElementById("input48").checked = true;
     }
     document.getElementById("updateButton").onclick = ()=>{
         for(let i = 0; i < 6; i++)
@@ -360,17 +394,17 @@ socket.on("updateQuestion", (question)=>{
                 newValues[i] = ""
             }
         }
-        for(var i = 5; i < 8; i++)
+        for(var i = 6; i < 9; i++)
         {
-            if(document.getElementById("input4"+i).checked && ogValues[5] != (i-5))
+            if(document.getElementById("input4"+i).checked && ogValues[6] != (i-6))
             {
-                newValues[5] = String(i-5)
+                newValues[6] = String(i-6)
                 socket.emit("updateValues", {n:newValues, qid:question._id})
                 return
             }
             else
             {
-                newValues[5] = ""
+                newValues[6] = ""
             }
         }
         socket.emit("updateValues", {n:newValues, qid:question._id})
@@ -390,4 +424,26 @@ socket.on("deleted", ()=>{
     document.getElementById("modal-body").innerHTML = "Successfully deleted the question";
     $('#modal').modal('toggle');
     updateList();
+})
+
+socket.on("numberOfQuestion", (id, n)=>{
+    let dropdown = document.getElementById("dropdown"+id)
+    for(let i = 0; i < n; i++)
+    {
+        let p = document.createElement("p")
+        //p.setAttribute("id", "dropdownId"+id+i)
+        p.setAttribute("class", "dropdown-item dropdownItems")
+        p.setAttribute("style", "padding:0; margin:0; padding-left: 20px")
+        p.onclick = ()=>{
+            setNumberOfQuestions(id, i);
+        }
+        p.appendChild(document.createTextNode((i+1)))
+        dropdown.appendChild(p)
+    }
+})
+
+socket.on("alreadyLoggedIn", ()=>{
+    document.getElementById("modal-title").innerHTML = "Failed";
+    document.getElementById("modal-body").innerHTML = "already logged in on other device/browser tab";
+    $('#modal').modal('toggle');
 })
