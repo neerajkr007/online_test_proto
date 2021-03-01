@@ -6,7 +6,9 @@ const Users = require('./mongodbconnection/users')
 const Admin = require('./mongodbconnection/admin')
 const Tests = require('./mongodbconnection/tests')
 const Questions = require('./mongodbconnection/questions')
-var testSchemas = {}
+const network = require('network');
+
+
 
 const mongoose = require('mongoose');
 //const connectDB = require('./mongodbconnection/connection');
@@ -31,7 +33,6 @@ connection();
 //connectDB();
 //Yj3ZfnXrwI11dFjM
 //mongodb+srv://neeraj:<password>@cluster0.kjior.mongodb.net/myFirstDatabase?retryWrites=true&w=majority uri
-
 
 
 app.get('/', (req, res) =>
@@ -90,6 +91,9 @@ var io = require('socket.io')(serv,{});
 io.on('connection', function(socket){
     console.log("socket connected")
 
+    SOCKET = socket
+    SOCKET_LIST[socket.id] = SOCKET;
+
 
     socket.on("newSignUp", async (data)=>{
         let user = {};
@@ -126,10 +130,8 @@ io.on('connection', function(socket){
                         {
                             data[0].alreadyLoggedIn = true
                             await data[0].save()
-                            SOCKET = socket
                             SOCKET.email = data[0].email
                             SOCKET.isAdmin = true
-                            SOCKET_LIST[socket.id] = SOCKET;
                             let testsData = await Tests.find({})
                             socket.emit("adminLoggedIn", data, testsData);
                         }
@@ -164,20 +166,33 @@ io.on('connection', function(socket){
                         {
                             data[0].alreadyLoggedIn = true
                             await data[0].save()
-                            SOCKET = socket
                             SOCKET.email = data[0].email
                             SOCKET.isAdmin = false
-                            SOCKET_LIST[socket.id] = SOCKET;
                             //console.log(SOCKET_LIST)
                             let testsList = [];
                             testsList = data[0].tests
                             let myTestsData = [];
                             for(let i = 0; i < testsList.length; i++)
                             {
-                                myTestsData[i] = await Tests.findOne({"testName":testsList[i]})
+                                console.log(testsList[i].testName)
+                                myTestsData[i] = await Tests.findOne({"testName":testsList[i].testName})
                             }
                             let testData = await Tests.find({})
                             socket.emit("LoggedIn", data, testData, myTestsData);
+                            socket.on("currentMACTest", async (testName)=>{
+                                let a = await Users.findOne({"email":data[0].email})
+                                for(let i = 0; i < a.tests.length; i++)
+                                {
+                                    if(a.tests[i].testName == testName)
+                                    {
+                                        network.get_active_interface(async function(err, obj) {
+                                            if(a.tests[i].validMacs.includes(obj.mac_address))
+                                                socket.emit("currentMACTest", true)
+                                        })
+                                    }
+                                }
+                            })
+                            
                         }
                         else
                             socket.emit("LogInFailed", "password");
@@ -213,11 +228,17 @@ io.on('connection', function(socket){
                             }
                             else
                             {
-                                data.tests.push(registerData.d[0])
-                                await data.save(async ()=>{
-                                    let testio = await Tests.find({"testName":registerData.d[0]})
-                                    //console.log(data)
-                                    socket.emit("registered", testio[0])
+                                data.tests.push({"testName": registerData.d[0]})
+                                network.get_interfaces_list(async function(err, list) {
+                                    for(let i = 0; i < list.length; i++)
+                                    {
+                                        data.tests[(data.tests.length - 1)].validMacs.push(list[i].mac_address)
+                                    }
+                                    await data.save(async ()=>{
+                                        let testio = await Tests.find({"testName":registerData.d[0]})
+                                        //console.log(data)
+                                        socket.emit("registered", testio[0])
+                                    })
                                 })
                             }
                         })
@@ -346,10 +367,10 @@ io.on('connection', function(socket){
         socket.emit("numberOfQuestion", id, listofQuestions.length)
     })
 
-    socket.on("logout", async ()=>{
-        if(SOCKET_LIST[socket.id].isAdmin)
+    socket.on("logout", async (id, t)=>{
+        if(t == "admin")
         {
-            let admin = await Admin.findOne({"email":SOCKET_LIST[socket.id].email})
+            let admin = await Admin.findOne({"email":id})
             if(admin.alreadyLoggedIn)
             {
                 admin.alreadyLoggedIn = false
@@ -358,7 +379,7 @@ io.on('connection', function(socket){
         }
         else
         {
-            let user = await Users.findOne({"email":SOCKET_LIST[socket.id].email})
+            let user = await Users.findOne({"email":id})
             if(user.alreadyLoggedIn)
             {
                 user.alreadyLoggedIn = false
@@ -390,7 +411,7 @@ io.on('connection', function(socket){
         }
         catch(e)
         {
-            
+
         }
         console.log("socket disconnected")
     })

@@ -8,7 +8,7 @@ function tryLogin()
     socket.emit("tryAdminLogin", document.getElementById("input0").value, document.getElementById("input1").value);
 }
 
-window.onunload = ()=>{socket.emit("logout")}
+window.onunload = ()=>{socket.emit("logout", document.getElementById("input0").value, "admin")}
 
 function start()
 {
@@ -441,9 +441,24 @@ socket.on("numberOfQuestion", (id, n)=>{
         dropdown.appendChild(p)
     }
 })
-
+let once2 = true
 socket.on("alreadyLoggedIn", ()=>{
     document.getElementById("modal-title").innerHTML = "Failed";
     document.getElementById("modal-body").innerHTML = "already logged in on other device/browser tab";
+    if(once2)
+    {
+        let footer = document.getElementsByClassName("modal-footer")[0]
+        let useHere = document.createElement('button')
+        useHere.setAttribute("id", "useHere")
+        useHere.setAttribute("class", "btn btn-primary")
+        useHere.appendChild(document.createTextNode('Use Here'))
+        useHere.onclick = ()=>{
+            socket.emit("logout", document.getElementById("input0").value, "admin")
+            document.getElementById("useHere").style.display = "none"
+        }
+        useHere.setAttribute("data-dismiss", "modal")
+        footer.appendChild(useHere)
+        once2 = false
+    }
     $('#modal').modal('toggle');
 })

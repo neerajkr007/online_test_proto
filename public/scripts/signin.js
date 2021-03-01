@@ -3,6 +3,8 @@ const socket = io.connect();
 
 
 
+window.onunload = ()=>{socket.emit("logout", document.getElementById("input0").value, "")}
+
 var userData;
 
 function tryLogin()
@@ -62,26 +64,49 @@ function placeTestCards(data)
     if(!data[2])
     {
         let test = document.createElement('button')
-        test.setAttribute("id", data[0])
+        test.setAttribute("id", "startTest")
         test.setAttribute("type", "button")
         test.setAttribute("class", "btn btn-outline-success test-right")
         if(data[7])
         {
-            let d = new Date();
-            //let date = data[3][0] + data[3][1];
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var yyyy = today.getFullYear();
+
+            var d = new Date(),
+            h = (d.getHours()<10?'0':'') + d.getHours(),
+            m = (d.getMinutes()<10?'0':'') + d.getMinutes();
+            var time = h + ':' + m;
             
+
+            today = dd + '/' + mm + '/' + yyyy;
+            let date = data[3];
             test.onclick = ()=>{
 
-                if(d.getMonth() ===  1&& d.getDate() === 22 && d.getHours() === 14 && d.getMinutes() <= 59 && d.getMinutes() >= 25)
-                {
-                    location.href = "/betaTest"
-                }
-                else
-                {
-                    document.getElementById("modal-title").innerHTML = "try later";
-                    document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">cant take this test right now. try on '+data[3]+' after '+data[5]+'</p>';
-                    $('#modal').modal('toggle');
-                }
+                socket.emit("currentMACTest", data[0])
+                socket.on("currentMACTest", result=>{
+                    if(!result)
+                    {
+                        if(date == today && data[4] == time)
+                        {
+                            location.href = "/betaTest"
+                        }
+                        else
+                        {
+                            document.getElementById("modal-title").innerHTML = "try later";
+                            document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">cant take this test right now. try on '+data[3]+' after '+data[5]+'</p>';
+                            $('#modal').modal('toggle');
+                        }
+                    }
+                    else
+                    {
+                        document.getElementById("modal-title").innerHTML = "Alert";
+                        document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">cant take this test on this device either switch to registered device or create a ticket to change device permission'+'</p>';
+                        $('#modal').modal('toggle');
+                    }
+                })
+                
             }
             test.appendChild(document.createTextNode("Take Test"))
         }
@@ -157,8 +182,25 @@ socket.on("registered", (testsData)=>{
     placeTestCards(myCardData);
 })
 
+var once2 = true
+
 socket.on("alreadyLoggedIn", ()=>{
     document.getElementById("modal-title").innerHTML = "Failed";
     document.getElementById("modal-body").innerHTML = "already logged in on other device/browser tab";
+    if(once2)
+    {
+        let footer = document.getElementsByClassName("modal-footer")[0]
+        let useHere = document.createElement('button')
+        useHere.setAttribute("id", "useHere")
+        useHere.setAttribute("class", "btn btn-primary")
+        useHere.appendChild(document.createTextNode('Use Here'))
+        useHere.onclick = ()=>{
+            socket.emit("logout", document.getElementById("input0").value, "")
+            document.getElementById("useHere").style.display = "none"
+        }
+        useHere.setAttribute("data-dismiss", "modal")
+        footer.appendChild(useHere)
+        once2 = false
+    }
     $('#modal').modal('toggle');
 })
