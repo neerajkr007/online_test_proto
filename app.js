@@ -10,6 +10,7 @@ const Questions = require('./mongodbconnection/questions')
 
 
 const mongoose = require('mongoose');
+const { find } = require('./mongodbconnection/users');
 //const connectDB = require('./mongodbconnection/connection');
 const URI = "mongodb+srv://neeraj:Yj3ZfnXrwI11dFjM@cluster0.kjior.mongodb.net/Users?retryWrites=true&w=majority"
 const connection = async ()=>{
@@ -62,6 +63,12 @@ app.get('/signin', (req, res) =>
     
 }); 
 
+app.get('/test', (req, res) =>
+{
+    res.sendFile(__dirname + '/test.html');
+    
+}); 
+
 
 app.use(express.static(__dirname + '/public'));
 
@@ -81,6 +88,38 @@ var SOCKET = {
     _socket: this,
     email: "",
     isAdmin: false
+}
+
+function fillQuestions(n)
+{
+    let rn = Math.floor(Math.random() * n)
+    if(!rns.includes(rn))
+    {
+        return rn;
+    }
+    else
+    {
+        fillQuestions(n);
+    }
+}
+
+function shuffle(array) {
+    var i = array.length,
+        j = 0,
+        temp;
+
+    while (i--) {
+
+        j = Math.floor(Math.random() * (i+1));
+
+        // swap randomly chosen element with current element
+        temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+
+    }
+
+    return array;
 }
 
 var SOCKET_LIST = []
@@ -171,8 +210,8 @@ io.on('connection', function(socket){
                             let myTestsData = [];
                             for(let i = 0; i < testsList.length; i++)
                             {
-                                console.log(testsList[i].testName)
                                 myTestsData[i] = await Tests.findOne({"testName":testsList[i].testName})
+
                             }
                             let testData = await Tests.find({})
                             socket.emit("LoggedIn", data, testData, myTestsData);
@@ -261,12 +300,15 @@ io.on('connection', function(socket){
             else{
                 if(data.length == 0)
                 {
-                    let testData = {}
+                    let testData = {noofquestions:[]}
                     testData.testName = _testData[0];
                     testData.date = _testData[1];
                     testData.startTime = _testData[2];
                     testData.timeFrom = _testData[3];
                     testData.description = _testData[4];
+                    testData.noofquestions.push(_testData[5])
+                    testData.noofquestions.push(_testData[6])
+                    testData.noofquestions.push(_testData[7])
                     let tests = new Tests(testData);
                     await tests.save(function(err, data)
                     {
@@ -366,7 +408,7 @@ io.on('connection', function(socket){
         if(t == "admin")
         {
             let admin = await Admin.findOne({"email":id})
-            if(user != null && admin.alreadyLoggedIn)
+            if(admin != null && admin.alreadyLoggedIn)
             {
                 admin.alreadyLoggedIn = false
                 await admin.save();
@@ -398,6 +440,69 @@ io.on('connection', function(socket){
                 await user.save();
                 socket.emit("unregister", d.testName)
                 return
+            }
+        }
+    })
+
+    socket.on("checkNoOfQuestions", async (d)=>{
+        let n = await Questions.find({"questionType":d.i})
+        if(n.length < d.j)
+        {
+            //console.log("n<d " + n.length +" "+d.j)
+            socket.emit("allGood", false, d.i);
+        }
+        else
+        {
+            socket.emit("allGood", true, d.i);
+        }
+    })
+
+    socket.on("newUrl", d=>{
+        //console.log(d)
+        app.get(d, (req, res) =>
+        {
+            res.sendFile(__dirname + '/test.html');
+        }); 
+        socket.emit("newUrl", d)
+    })
+
+    socket.on("getQuestions", async (testName)=>{
+        let test = await Tests.findOne({"testName":testName})
+        let rns = []
+        let noofquestions = []
+        let n = 0
+        for(let j = 0; j < 3; j++)
+        {
+            for(let i = 0; i < test.noofquestions[j]; i++)
+            {
+                rns.push(n)
+                noofquestions.push = ""
+                n++;
+            }
+        }
+        n = 0
+        let randomArray = shuffle(rns)
+        for(let i = 0; i < 3; i++)
+        {
+            let question = await Questions.find({"questionType":String(i)})
+            for(let j = 0; j < test.noofquestions[i] ; j++)
+            {
+                noofquestions[randomArray[n]] = question[j]
+                noofquestions[randomArray[n]].ans = "lol"
+                n++
+            }
+        }
+        socket.emit("getQuestions", noofquestions)
+    })
+
+    socket.on("submission", async (d)=>{
+        console.log(d)
+        let user = await Users.findOne({"_id":d.uid})
+        for(let i = 0; i < user.tests.length; i++)
+        {
+            if(user.tests[i].testName == d.testName)
+            {
+                user.tests[i].submission = JSON.parse(JSON.stringify(d.marked));
             }
         }
     })

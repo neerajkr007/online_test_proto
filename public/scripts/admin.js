@@ -1,6 +1,6 @@
 const socket = io.connect();
-var listofInputs = new Array(5)
-listofInputs = ["", "", "", "", ""];
+var listofInputs = new Array(8)
+listofInputs = ["", "", "", "", "", "", "", ""];
 
 
 function tryLogin()
@@ -28,9 +28,11 @@ function createTest()
     document.getElementById("testForm").style.display = "block";
 }
 
+let allGood2 = [false, false, false]
+
 function validateAll()
 {
-    let allGood = [false, false, false, false, false];
+    let allGood = [false, false, false, false, false, false, false, false];
     for(var i = 0; i < listofInputs.length; i++)
     {
         listofInputs[i] = document.getElementById("input1"+i).value
@@ -56,8 +58,38 @@ function validateAll()
             return
         }
     }
-
-    socket.emit("newTest", listofInputs)
+    for(let i = 5; i < listofInputs.length; i++)
+    {
+        socket.emit("checkNoOfQuestions", {i:(i-5), j:listofInputs[i]} )
+    }
+    
+    socket.on("allGood", (b, ij)=>{
+        if(!b)
+        {
+            document.getElementById("input1"+(ij+5)).classList.remove("is-valid")
+            document.getElementById("input1"+(ij+5)).classList.add("is-invalid")
+            document.getElementById("invalid1"+(ij+5)).innerHTML = "Pick a lower number"
+            document.getElementById("modal-title").innerHTML = "Failed";
+            document.getElementById("modal-body").innerHTML = "entered number of questions was too high than available in question bank";
+            $('#modal').modal('toggle');
+            allGood2[ij] = false
+            return
+        }
+        else
+        {
+            allGood2[(ij)] = true
+        }
+        for(let i in allGood2)
+        {
+            if(!allGood2[i])
+            {
+                return
+            }
+        }
+        socket.emit("newTest", listofInputs)
+        allGood2 = [false, false, false]
+    })
+    
 }
 
 function placeTestCards(data)

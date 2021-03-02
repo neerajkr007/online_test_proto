@@ -22,6 +22,9 @@ const user = new mongoose.Schema({
         },
         validMacs:{
             type:Array
+        },
+        submission:{
+            type:Array
         }
     }],
     alreadyLoggedIn:{

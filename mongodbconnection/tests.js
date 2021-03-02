@@ -18,6 +18,9 @@ const tests = new mongoose.Schema({
     },
     timeFrom:{
         type:String
+    },
+    noofquestions:{
+        type:Array
     }
 });
 

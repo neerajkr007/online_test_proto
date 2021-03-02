@@ -58,3 +58,16 @@
     cursor: pointer;
     background-color: gray;
 }
+
+.vertical-center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+  }
+
+  .questionListBox {
+      height: 400px;
+      width: 300px;
+  }

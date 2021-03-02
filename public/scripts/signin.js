@@ -106,9 +106,20 @@ function placeTestCards(data)
                 socket.on("currentMACTest", result=>{
                     if(result)
                     {
-                        if(date == today && data[4] == time)
+                        //if(date == today && data[4] == time)
+                        if(true)
                         {
-                            location.href = "/betaTest"
+                            var d = new Date();
+                            d.setTime(d.getTime() + (12 * 60 * 60 * 1000));
+                            var expires = "expires="+d.toUTCString();
+                            document.cookie = "testName="+data[0]+ ";" + expires
+                            document.cookie = "userId="+userData[0]._id+ ";" + expires
+                            let newUrl = "/"+data[0]
+                            newUrl = newUrl.replaceAll(/ /g,"%20")
+                            socket.emit("newUrl", newUrl)
+                            socket.on("newUrl", (url)=>{
+                                location.href = url
+                            })
                         }
                         else
                         {
