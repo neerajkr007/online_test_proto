@@ -16,8 +16,19 @@ const user = new mongoose.Schema({
     password:{
         type:String
     }, 
-    tests:{
-        type:Array
+    tests:[{
+        testName:{
+            type:String
+        },
+        validMacs:{
+            type:Array
+        },
+        submission:{
+            type:Array
+        }
+    }],
+    alreadyLoggedIn:{
+        type:Boolean
     }
 });
 

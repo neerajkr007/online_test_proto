@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.1/socket.io.js" integrity="sha512-oFOCo2/3DtjrJG4N27BjSLQWoiBv171sK6a+JiWjp/7agxC2nCUP358AqzxkBUb5jX8g6CYLPdSKQTbC0weCwA==" crossorigin="anonymous"></script>
-    <title>Welcome</title>
+    <title>Sign In</title>
 </head>
 <body onload="testi()">
 	
@@ -61,9 +61,8 @@
                   </div>
                 </div>
                 <div class="form-group row">
-                  <div class="col-sm-10">
-                    <button type="button" class="btn btn-primary mt-2 ml-2" onclick="tryLogin()">Sign in</button>
-                  </div>
+                    <button type="button" class="btn btn-primary mt-2 ml-4  mr-auto" onclick="tryLogin()">Sign in</button>
+                    <button type="button" class="btn btn-primary mt-2 mr-4" onclick="forgotpassword()">forgot password</button>
                 </div>
             </form>
         </div>
@@ -72,16 +71,16 @@
         </div>
         <div id="upcoming-tests" class="mt-5 row" style="display:none">
           <div class="col-md-6 justify-content-center">
-            <h3 class="mt-10 display-4">Upcoming Tests :</h3>
-            <p>click on any of the following tests, to register for it</p>
-            <div id="test1" class="mt-4">
-              <button type="button" class="btn btn-outline-info" onclick="register('beta');">Beta Test</button>
+            <h3 class="mt-10 display-4 mb-3">Upcoming Tests :</h3>
+            <!---<p class="ml-2">click on any of the following tests, to register for it</p>--->
+            <div id="tests" class="mt-4">
+              <!---<button type="button" class="btn btn-outline-info" onclick="register('beta');">Beta Test</button>--->
+              
             </div>
           </div>
           <div class="col-md-6 justify-content-center">
             <h3 class="mt-10 display-4">Your Tests :</h3>
-            <p>click on any of the following tests, to start it</p>
-            <div id="tests" class="mt-4">
+            <div id="myTests" class="mt-4">
             </div>
           </div>
           

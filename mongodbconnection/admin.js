@@ -9,6 +9,9 @@ const admin = new mongoose.Schema({
     },
     userName:{
         type:String
+    },
+    alreadyLoggedIn:{
+        type:Boolean
     }
 });
 
