@@ -240,8 +240,9 @@ socket.on("submitted", ()=>{
         document.getElementById("modal-sec").style.display = "none"
         document.getElementById("modal-sec").onclick = null
         $('#modal').modal('toggle');
+        document.getElementById("testPage").style.display = "none"
+        document.getElementById("testEnd").style.display = "block"
     }, 500);
-    
 })
 
 
