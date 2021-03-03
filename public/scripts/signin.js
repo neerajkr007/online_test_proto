@@ -87,26 +87,26 @@ function placeTestCards(data)
         test.setAttribute("class", "btn btn-outline-success col-md-6")
         if(data[7])
         {
-            var today = new Date();
-            var dd = String(today.getDate()).padStart(2, '0');
-            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-            var yyyy = today.getFullYear();
-
-            var d = new Date(),
-            h = (d.getHours()<10?'0':'') + d.getHours(),
-            m = (d.getMinutes()<10?'0':'') + d.getMinutes();
-            var time = h + ':' + m;
-            
-
-            today = dd + '/' + mm + '/' + yyyy;
-            let date = data[3];
             test.onclick = ()=>{
+                var today = new Date();
+                var dd = String(today.getDate()).padStart(2, '0');
+                var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                var yyyy = today.getFullYear();
+
+                var d = new Date(),
+                h = (d.getHours()<10?'0':'') + d.getHours(),
+                m = (d.getMinutes()<10?'0':'') + d.getMinutes();
+                var time = h + ':' + m;
+                
+
+                today = dd + '/' + mm + '/' + yyyy;
+                let date = data[3];
                 var token = getCookie("token"+userData[0]._id);
                 socket.emit("currentMACTest", {testName:data[0], user:token})
                 socket.on("currentMACTest", result=>{
                     if(result)
                     {
-                        //if(date == today && data[4] == time)
+                        //if(date == today && data[5] <= time && data[4] >= time)
                         if(true)
                         {
                             var d = new Date();
@@ -114,12 +114,19 @@ function placeTestCards(data)
                             var expires = "expires="+d.toUTCString();
                             document.cookie = "testName="+data[0]+ ";" + expires
                             document.cookie = "userId="+userData[0]._id+ ";" + expires
+                            console.log(userData[0]._id)
                             let newUrl = "/"+data[0]
                             newUrl = newUrl.replaceAll(/ /g,"%20")
                             socket.emit("newUrl", newUrl)
                             socket.on("newUrl", (url)=>{
                                 location.href = url
                             })
+                        }
+                        else if(data[4] < time)
+                        {
+                            document.getElementById("modal-title").innerHTML = "failed";
+                            document.getElementById("modal-body").innerHTML = '<p class="d-inline-flex display-4" style="font-size: large;">you were late, cant attempt this test. try other tests if you like to </p>';
+                            $('#modal').modal('toggle');
                         }
                         else
                         {

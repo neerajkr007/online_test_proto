@@ -75,7 +75,7 @@ app.use(express.static(__dirname + '/public'));
 serv.listen(process.env.PORT || 3000); 
 
 function Token() {
-    length = 16;
+    length = 32;
     chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     var result = '';
     for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
@@ -83,24 +83,10 @@ function Token() {
 }
 
 
-
 var SOCKET = {
     _socket: this,
     email: "",
     isAdmin: false
-}
-
-function fillQuestions(n)
-{
-    let rn = Math.floor(Math.random() * n)
-    if(!rns.includes(rn))
-    {
-        return rn;
-    }
-    else
-    {
-        fillQuestions(n);
-    }
 }
 
 function shuffle(array) {
@@ -496,13 +482,22 @@ io.on('connection', function(socket){
     })
 
     socket.on("submission", async (d)=>{
-        console.log(d)
+        //console.log(d)
         let user = await Users.findOne({"_id":d.uid})
         for(let i = 0; i < user.tests.length; i++)
         {
             if(user.tests[i].testName == d.testName)
             {
-                user.tests[i].submission = JSON.parse(JSON.stringify(d.marked));
+                for(let j = 0; j < d.marked.length; j++)
+                {
+                    if(d.marked[j].marked)
+                    {
+                        user.tests[i].submission.push(d.marked[j])
+                    }
+                }
+                await user.save()
+                socket.emit("submitted")
+                break
             }
         }
     })

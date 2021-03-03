@@ -69,6 +69,10 @@ function placeQuestion(data)
                     optionsUl.children[i].style.backgroundColor = "gray";
                 }
                 optionLi.style.backgroundColor = "black"
+                let btnId = document.getElementsByClassName('btn-warning')[0].id
+                document.getElementsByClassName('btn-warning')[0].classList.remove("btn-warning")
+                document.getElementById(btnId).classList.remove("btn-outline-success")
+                document.getElementById(btnId).classList.add("btn-success")
                 for(let i = 0; i < totalQuestions; i++)
                 {
                     if(marked[i].questionId == mainLi.id)
@@ -187,19 +191,19 @@ socket.on("getQuestions", questions=>{
                 button.onclick = ()=>{
                     currentId = "question"+((5*i) + j)
                     placeQuestion([questions[((5*i) + j)]._id, questions[((5*i) + j)].question, questions[((5*i) + j)].option1, questions[((5*i) + j)].option2, questions[((5*i) + j)].option3, questions[((5*i) + j)].option4])
-                    if(!document.getElementById("question"+((5*i) + j)).classList.contains("btn-danger"))
+                    if(!document.getElementById("question"+((5*i) + j)).classList.contains("btn-danger") && !document.getElementById("question"+((5*i) + j)).classList.contains("btn-success"))
                     {
                         document.getElementById("flagButton").innerHTML = "flag"
                         document.getElementById("question"+((5*i) + j)).classList.add("btn-warning")
                         document.getElementById("question"+((5*i) + j)).classList.remove("btn-outline-success")
                     }
-                    else
+                    else if(document.getElementById("question"+((5*i) + j)).classList.contains("btn-danger"))
                     {
                         document.getElementById("flagButton").innerHTML = "unflag"
                     }
                     for(let k = 0; k < questions.length; k++)
                     {
-                        if(k != ((5*i) + j) && !document.getElementById("question"+k).classList.contains("btn-danger"))
+                        if(k != ((5*i) + j) && !document.getElementById("question"+k).classList.contains("btn-danger") && !document.getElementById("question"+k).classList.contains("btn-success"))
                         {
                             document.getElementById("question"+k).classList.add("btn-outline-success")
                             document.getElementById("question"+k).classList.remove("btn-warning")
@@ -220,6 +224,24 @@ socket.on("getQuestions", questions=>{
             once = false
         }
     }
+})
+
+socket.on("submitted", ()=>{
+    setTimeout(() => {
+        document.getElementById("modal-title").innerHTML = "Success";
+        document.getElementById("modal-body").innerHTML = 
+        '<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">'+
+            '<circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>'+
+            '<path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>'+
+        '</svg>'+
+        '<br>'+
+        '<p class="text-center display-4">Successfully submitted the test</p>';
+
+        document.getElementById("modal-sec").style.display = "none"
+        document.getElementById("modal-sec").onclick = null
+        $('#modal').modal('toggle');
+    }, 500);
+    
 })
 
 
