@@ -4,9 +4,14 @@ const tests = new mongoose.Schema({
     testName:{
         type:String
     },
-    participants:{
-        type:Array
-    },
+    participants:[{
+        pid:{
+            type:String
+        },
+        attempted:{
+            type:Boolean
+        }
+    }],
     description:{
         type:String
     },

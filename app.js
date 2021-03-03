@@ -8,6 +8,17 @@ const Tests = require('./mongodbconnection/tests')
 const Questions = require('./mongodbconnection/questions')
 
 
+var nodemailer = require('nodemailer');
+
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'vashisthneeraj06',
+    pass: 'P@86*&nbx'
+  }
+});
+
+
 
 const mongoose = require('mongoose');
 const { find } = require('./mongodbconnection/users');
@@ -236,42 +247,27 @@ io.on('connection', function(socket){
             }
             else
             {
-                if(data[0].participants.includes(registerData.id))
+                for(let i = 0; i < data[0].participants.length; i++)
                 {
-                    socket.emit("alreadyRegistered")
+                    if(data[0].participants[i].pid == registerData.id){
+                        socket.emit("alreadyRegistered")
+                        return
+                    }
                 }
-                else
-                {
-                    data[0].participants.push(registerData.id)
-                    await data[0].save(()=>{
-                        Users.findOne({"_id": registerData.id}, 
-                        async (err, data)=>{
-                            //console.log(data)
-                            if(err)
-                            {
-                                console.log(err);
-                            }
-                            else
-                            {
-                                data.tests.push({"testName": registerData.d[0]})
-                                let token = Token();
-                                data.tests[(data.tests.length - 1)].validMacs.push(token)
-                                await data.save(async ()=>{
-                                     let testio = await Tests.find({"testName":registerData.d[0]})
-                                     //console.log(data)
-                                    socket.emit("registered", testio[0], token)
-                                })
-                            }
-                        })
-                    //     Users.findOneAndUpdate({"_id": registerData.id}, 
-                    //     {$addToSet: {'tests': {"testName": registerData.d[0], "description": registerData.d[1], "date": registerData.d[3], "startTime": registerData.d[4], "timeFrom": registerData.d[5]}}}, 
-                    //     {new: true}, async (err, result) => {
-                    //         let testio = await Users.find({"_id":registerData.id}, 'tests')
-                    //         socket.emit("registered", testio[0].tests)
-                    // })
-                    })
-                    
-                }
+                let obj = {}
+                obj.pid = registerData.id
+                obj.attempted = false
+                data[0].participants.push(obj)
+                await data[0].save()
+                let user = await Users.findOne({"_id": registerData.id})
+                user.tests.push({"testName": registerData.d[0]})
+                let token = Token();
+                user.tests[(user.tests.length - 1)].validMacs.push(token)
+                await user.save(async ()=>{
+                     let testio = await Tests.find({"testName":registerData.d[0]})
+                     //console.log(data)
+                    socket.emit("registered", testio[0], token)
+                })
             }
         })
         
@@ -500,6 +496,47 @@ io.on('connection', function(socket){
                 break
             }
         }
+    })
+
+    socket.on("attempted", async (d)=>{
+        let test = await Tests.findOne({"testName": d.tname})
+        for(let i = 0; i < test.participants.length; i++)
+        {
+            if(test.participants[i].pid == d.uid)
+            {
+                test.participants[i].attempted = true
+                await test.save()
+                break
+            }
+        }
+    })
+
+    socket.on("forgotPassword", async (email)=>{
+        let user = await Users.findOne({"email":email})
+        if(user == null)
+        {
+            socket.emit("forgotPasswordFailed")
+            return
+        }
+        let pass = user.password
+        let mailOptions = {
+            from: 'vashisthnk621@gmail.com',
+            to: email,
+            subject: 'Your password for onlinetest-prototype account',
+            text: 'your password was - '+pass
+          };
+          
+          transporter.sendMail(mailOptions, function(error, info){
+            if (error) 
+            {
+              console.log(error);
+            } 
+            else 
+            {
+                socket.emit("emailSent")
+                console.log('Email sent: ' + info.response);
+            }
+          });
     })
 
     socket.on("disconnect", async ()=>{

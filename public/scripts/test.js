@@ -20,11 +20,12 @@ function loadTest()
     distributeQuestions()
 }
 
-function distributeQuestions()
+async function distributeQuestions()
 {
-    testName = getCookie("testName");
+    testName = await getCookie("testName");
+    userId = await getCookie("userId");
     socket.emit("getQuestions", testName)
-    userId = getCookie("userId");
+    
 }
 
 function getCookie(cname) {
@@ -140,6 +141,10 @@ function submitTest()
 }
 
 socket.on("getQuestions", questions=>{
+    if(questions.length != 0)
+    {
+        socket.emit("attempted", {uid:userId, tname:testName})
+    }
     totalQuestions = questions.length
     let once = true
     for(let i = 0; i < questions.length; i++)

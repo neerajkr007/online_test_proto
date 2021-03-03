@@ -41,7 +41,7 @@ function getCookie(cname) {
 
 function placeTestCards(data)
 {
-    //data 0= name, 1= discription 2= isAdmin 3= date 4= time 5 = login time 6=tests
+    //data 0= name, 1= discription 2= isAdmin 3= date 4= time 5 = login time 6=tests 7= ismytests 8= attempted
     let testList = document.getElementById(data[6])
     let div1 = document.createElement('div')
     if(data[7])
@@ -85,7 +85,7 @@ function placeTestCards(data)
         test.setAttribute("id", "startTest")
         test.setAttribute("type", "button")
         test.setAttribute("class", "btn btn-outline-success col-md-6")
-        if(data[7])
+        if(data[7] && !data[8])
         {
             test.onclick = ()=>{
                 var today = new Date();
@@ -145,16 +145,18 @@ function placeTestCards(data)
                 
             }
             test.appendChild(document.createTextNode("Take Test"))
+            div3.appendChild(test);
         }
-        else
+        else if(!data[7])
         {
             test.onclick = ()=>{
                 register(data);
             }
             test.appendChild(document.createTextNode("register"))
+            div3.appendChild(test);
         }
-        div3.appendChild(test);
-        if(data[7])
+               
+        if(data[7] && !data[8])
         {
             let test2 = document.createElement('button')
             test2.setAttribute("id", "startTest2")
@@ -169,7 +171,20 @@ function placeTestCards(data)
     }
     div1.appendChild(div2)
     div1.appendChild(div3)
+    if(data[7] && data[8])
+        {
+            let but = document.createElement('button')
+            but.setAttribute("class", "btn btn-danger col-md-12")
+            but.disabled = true
+            but.appendChild(document.createTextNode('Already Attempted !'))
+            div3.appendChild(but);
+        }
     testList.appendChild(div1)
+}
+
+function forgotpassword()
+{
+    socket.emit("forgotPassword", document.getElementById("input0").value)
 }
 
 socket.on("LoggedIn", (data, testsData, myTestsData)=>{
@@ -191,13 +206,21 @@ socket.on("LoggedIn", (data, testsData, myTestsData)=>{
     }    
     for(let i = 0; i<testsData.length; i++)
     {
-        let upcomingCardData = [testsData[i].testName, testsData[i].description, false, testsData[i].date, testsData[i].startTime, testsData[i].timeFrom, "tests"]
+        let upcomingCardData = [testsData[i].testName, testsData[i].description, false, testsData[i].date, testsData[i].startTime, testsData[i].timeFrom, "tests", false]
         placeTestCards(upcomingCardData);
     }
+    let attempted = false
     for(let i = 0; i<myTestsData.length; i++)
     {
-        let myCardData = [myTestsData[i].testName, myTestsData[i].description, false, myTestsData[i].date, myTestsData[i].startTime, myTestsData[i].timeFrom, "myTests", true]
-        placeTestCards(myCardData);
+        for(let j = 0; j < myTestsData[i].participants.length; j++){
+            if(myTestsData[i].participants[j].pid == userData[0]._id)
+            {
+                attempted = myTestsData[i].participants[j].attempted
+                break
+            }
+        }
+        let myCardData = [myTestsData[i].testName, myTestsData[i].description, false, myTestsData[i].date, myTestsData[i].startTime, myTestsData[i].timeFrom, "myTests", true, attempted]
+        placeTestCards(myCardData);       
     }
 });
 
@@ -263,4 +286,16 @@ socket.on("unregister", (testName)=>{
     document.getElementById("modal-body").innerHTML = "you have unregistered from this test";
     $('#modal').modal('toggle');
     document.getElementById(testName+"1").style.display = "none"
+})
+
+socket.on("emailSent", ()=>{
+    document.getElementById("modal-title").innerHTML = "Success";
+    document.getElementById("modal-body").innerHTML = "an email has been sent to the entered email";
+    $('#modal').modal('toggle');
+})
+
+socket.on("forgotPasswordFailed", ()=>{
+    document.getElementById("modal-title").innerHTML = "Failed";
+    document.getElementById("modal-body").innerHTML = "this email is not registered with this website";
+    $('#modal').modal('toggle');
 })
